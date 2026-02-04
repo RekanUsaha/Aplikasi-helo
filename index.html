@@ -1,0 +1,3598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fupa Snack - Sistem Progres Berurutan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #4ECDC4;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gray: #6C757D;
+            --border: #E0E0E0;
+            --border-radius: 10px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Login Container */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            background: var(--primary);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark);
+            display: block;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: var(--danger);
+        }
+        
+        .form-error {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-error.active {
+            display: block;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .login-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 13px;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .user-email {
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+        
+        /* Header dengan waktu real-time */
+        .main-header {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .logo-text h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .logo-text p {
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .time-display {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 180px;
+            flex-shrink: 0;
+        }
+        
+        .time-display .time {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .time-display .date {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        /* Roadmap */
+        .roadmap-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .roadmap-title {
+            color: var(--dark);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .roadmap {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 15px 0;
+        }
+        
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: var(--border);
+            z-index: 1;
+        }
+        
+        .roadmap-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+            max-width: 120px;
+        }
+        
+        .step-indicator {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--light);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 auto 10px;
+            border: 3px solid var(--light);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .step-indicator.active {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.1);
+        }
+        
+        .step-indicator.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .step-indicator.locked {
+            background: var(--light);
+            border-color: var(--border);
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .step-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        
+        .step-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-locked {
+            background: var(--light);
+            color: var(--gray);
+        }
+        
+        .status-active {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+        
+        /* Start Container */
+        .start-container {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.8s ease-out;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .start-icon {
+            font-size: 70px;
+            color: var(--primary);
+            margin-bottom: 25px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .start-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .start-subtitle {
+            font-size: 16px;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        /* Progress Summary Cards */
+        .progress-summary-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .progress-summary-container.active {
+            display: block;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .summary-card.locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .summary-header.locked {
+            cursor: not-allowed;
+        }
+        
+        .summary-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .summary-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .summary-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-late {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+        
+        .status-active {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+        
+        .deadline-compact {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .deadline-compact.late {
+            color: var(--danger);
+        }
+        
+        .summary-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .summary-target {
+            color: var(--gray);
+        }
+        
+        .summary-target span {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .summary-percent {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .summary-percent.completed {
+            color: var(--success);
+        }
+        
+        .progress-bar-sm {
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .progress-fill-sm {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        
+        .progress-fill-sm.completed {
+            background: var(--success);
+        }
+        
+        /* Detail View */
+        .detail-view {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .detail-view.active {
+            display: block;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .detail-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .deadline-info-compact {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .deadline-info-compact.late {
+            color: var(--danger);
+        }
+        
+        .detail-content {
+            margin-top: 15px;
+        }
+        
+        .progress-current {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .current-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .current-value.completed {
+            color: var(--success);
+        }
+        
+        /* Input Forms dalam Detail */
+        .input-form {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px dashed var(--border);
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .input-form.completed {
+            display: none;
+        }
+        
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--dark);
+            display: block;
+        }
+        
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 2px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: var(--danger);
+        }
+        
+        .form-help {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        .form-help.error {
+            color: var(--danger);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Checklist items */
+        .checklist-container {
+            margin-top: 15px;
+        }
+        
+        .checklist-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--light);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .checklist-item:hover {
+            background: #e9ecef;
+        }
+        
+        .checklist-item.completed {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid var(--success);
+        }
+        
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            margin-right: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .checklist-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .checklist-checkbox.locked {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .checklist-label {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        .checklist-item.completed .checklist-label {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+        
+        /* Tombol */
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #3d8b40;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+        
+        .btn:disabled {
+            background: var(--light);
+            color: var(--gray);
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Alert Messages */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.5s ease-out;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-10px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        /* Progress Complete Info */
+        .complete-info {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .complete-info i {
+            color: var(--success);
+            font-size: 20px;
+        }
+        
+        .complete-info-text {
+            font-size: 14px;
+            color: var(--success);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 107, 53, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .time-display {
+                width: 100%;
+            }
+            
+            .roadmap {
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+            }
+            
+            .roadmap::before {
+                display: none;
+            }
+            
+            .start-title {
+                font-size: 26px;
+            }
+            
+            .start-subtitle {
+                font-size: 15px;
+            }
+            
+            .summary-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .summary-status {
+                align-self: flex-start;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .user-info {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 20px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container (Tampil Saat Belum Login) -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h1 class="login-title">Fupa Snack</h1>
+                <p class="login-subtitle">Sistem Manajemen Progres Pembukaan Cabang</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="masukan email" required>
+                    <div class="form-error" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="masukan password" required>
+                    <div class="form-error" id="passwordError"></div>
+                </div>
+                
+                <div id="loginError" class="alert alert-danger" style="display: none; margin-bottom: 20px;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="loginErrorText"></span>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginBtnText">Login</span>
+                    <div class="spinner" id="loginSpinner" style="display: none;"></div>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Sistem Lock/Unlock Berurutan dengan Deadline</p>
+                <p>Data disimpan secara online per user</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App Container (Tampil Saat Sudah Login) -->
+    <div id="appContainer" style="display: none;">
+        <!-- User Info Bar -->
+        <div class="user-info">
+            <div class="user-email" id="userEmail"></div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+        <!-- Main Container -->
+        <div class="container">
+            <!-- Header dengan waktu real-time -->
+            <header class="main-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Fupa Snack</h1>
+                        <p>Sistem Manajemen Progres Pembukaan Cabang</p>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <div class="time" id="currentTime">00:00:00</div>
+                    <div class="date" id="currentDate">Hari, 1 Januari 2023</div>
+                </div>
+            </header>
+            
+            <!-- Roadmap Progress -->
+            <div class="roadmap-container">
+                <h2 class="roadmap-title">
+                    <i class="fas fa-road"></i> Roadmap Pembukaan Cabang
+                </h2>
+                <div class="roadmap">
+                    <div class="roadmap-step">
+                        <div class="step-indicator locked" id="step1">1</div>
+                        <div class="step-label">Usaha 1</div>
+                        <div class="step-status status-locked">Terkunci</div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-indicator locked" id="step2">2</div>
+                        <div class="step-label">Usaha 2</div>
+                        <div class="step-status status-locked">Terkunci</div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-indicator locked" id="step3">3</div>
+                        <div class="step-label">Usaha 3</div>
+                        <div class="step-status status-locked">Terkunci</div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-indicator locked" id="step4">4</div>
+                        <div class="step-label">Usaha 4</div>
+                        <div class="step-status status-locked">Terkunci</div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-indicator locked" id="step5">5</div>
+                        <div class="step-label">Usaha 5</div>
+                        <div class="step-status status-locked">Terkunci</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Start Container (Awal sebelum usaha dibuka) -->
+            <div class="start-container" id="startContainer">
+                <div class="start-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h1 class="start-title">Sistem Pemantauan Progres Fupa Snack</h1>
+                <p class="start-subtitle">
+                    Sistem ini menggunakan metode lock/unlock berurutan. Anda harus menyelesaikan semua progres 
+                    dalam satu usaha sebelum dapat membuka usaha berikutnya. Setiap progres memiliki deadline 
+                    yang harus dipatuhi.
+                </p>
+                <button class="btn btn-primary btn-lg" id="startUsaha1Btn">
+                    <i class="fas fa-unlock"></i> BUKA USAHA <span id="currentUsahaNumberStart">1</span>
+                </button>
+            </div>
+            
+            <!-- Progress Summary Container -->
+            <div class="progress-summary-container" id="usahaContainer">
+                <!-- Alert untuk informasi -->
+                <div class="alert alert-warning" id="usahaAlert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Perhatian:</strong> Sistem lock/unlock berurutan. Klik pada progres untuk melihat detail.
+                    </div>
+                </div>
+                
+                <!-- Progress 1: Pengumpulan Modal -->
+                <div class="summary-card" id="summary1">
+                    <div class="summary-header" data-progress="1">
+                        <div class="summary-title">
+                            <div class="summary-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <span>1. Pengumpulan Modal Awal</span>
+                        </div>
+                        <div class="summary-status">
+                            <div class="deadline-compact" id="deadlineCompact1">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineText1">20 hari</span>
+                            </div>
+                            <div class="status-badge status-locked" id="statusBadge1">Terkunci</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-info">
+                        <div class="summary-target">Target: <span id="targetModalCompact1">Rp 1.600.000</span></div>
+                        <div class="summary-percent" id="percentModalCompact1">0%</div>
+                    </div>
+                    
+                    <div class="progress-bar-sm">
+                        <div class="progress-fill-sm" id="progressFillCompact1"></div>
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="detail-view" id="detail1">
+                        <div class="detail-header">
+                            <div class="detail-title">Detail Pengumpulan Modal</div>
+                            <div class="deadline-info-compact" id="deadlineDetail1">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineTimerDetail1">20 hari 00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <!-- Progress saat ini -->
+                            <div class="progress-current" id="modalCurrent">
+                                <span>Modal Terkumpul:</span>
+                                <span class="current-value" id="modalCurrentValue">Rp 0 / Rp 1.600.000</span>
+                            </div>
+                            
+                            <!-- Input Form (akan disembunyikan saat selesai) -->
+                            <div class="input-form" id="modalInputForm">
+                                <h3 class="form-title">
+                                    <i class="fas fa-plus-circle"></i> Tambah Setoran Modal
+                                </h3>
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        Jumlah Setoran (Rp)
+                                    </label>
+                                    <input type="text" id="setoranAmount" class="form-input" 
+                                           placeholder="Contoh: 500.000" required>
+                                    <div class="form-help">Sisa yang dibutuhkan: <span id="modalRemaining">Rp 1.600.000</span></div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="cancelSetoranBtn">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                    <button class="btn btn-primary" id="saveSetoranBtn">
+                                        <i class="fas fa-save"></i> Simpan Setoran
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Info selesai -->
+                            <div class="complete-info" id="modalCompleteInfo" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="complete-info-text">Pengumpulan modal telah selesai!</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 15px;">
+                                <button class="btn btn-success" id="openModalInputBtn">
+                                    <i class="fas fa-plus-circle"></i> Tambah Setoran
+                                </button>
+                                <button class="btn btn-primary" id="completeModalBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Selesaikan Pengumpulan Modal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress 2: Persiapan Tempat -->
+                <div class="summary-card locked" id="summary2">
+                    <div class="summary-header locked" data-progress="2">
+                        <div class="summary-title">
+                            <div class="summary-icon">
+                                <i class="fas fa-store-alt"></i>
+                            </div>
+                            <span>2. Persiapan Tempat</span>
+                        </div>
+                        <div class="summary-status">
+                            <div class="deadline-compact" id="deadlineCompact2">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineText2">7 hari</span>
+                            </div>
+                            <div class="status-badge status-locked" id="statusBadge2">Terkunci</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-info">
+                        <div class="summary-target">Langkah: <span id="completedStepsCompact2">0/4</span> selesai</div>
+                        <div class="summary-percent" id="percentTempatCompact2">0%</div>
+                    </div>
+                    
+                    <div class="progress-bar-sm">
+                        <div class="progress-fill-sm" id="progressFillCompact2"></div>
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="detail-view" id="detail2">
+                        <div class="detail-header">
+                            <div class="detail-title">Detail Persiapan Tempat</div>
+                            <div class="deadline-info-compact" id="deadlineDetail2">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineTimerDetail2">7 hari 00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <!-- Progress saat ini -->
+                            <div class="progress-current" id="tempatCurrent">
+                                <span>Progress:</span>
+                                <span class="current-value" id="tempatCurrentValue">0/4 langkah</span>
+                            </div>
+                            
+                            <div class="checklist-container">
+                                <h3 class="checklist-title">Langkah-langkah Persiapan Tempat:</h3>
+                                <div class="checklist-item" id="stepIzin">
+                                    <div class="checklist-checkbox locked" data-step="izin">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">1. Pengurusan Izin Usaha</div>
+                                </div>
+                                <div class="checklist-item" id="stepDP">
+                                    <div class="checklist-checkbox locked" data-step="dp">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">2. Pembayaran DP Tempat</div>
+                                </div>
+                                <div class="checklist-item" id="stepPelunasan">
+                                    <div class="checklist-checkbox locked" data-step="pelunasan">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">3. Pelunasan Pembayaran Tempat</div>
+                                </div>
+                                <div class="checklist-item" id="stepSiap">
+                                    <div class="checklist-checkbox locked" data-step="siap">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">4. Persiapan Tempat Siap Jualan</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Info selesai -->
+                            <div class="complete-info" id="tempatCompleteInfo" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="complete-info-text">Persiapan tempat telah selesai!</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 20px;">
+                                <button class="btn btn-primary" id="completeTempatBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Selesaikan Persiapan Tempat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress 3: Pembelian Alat -->
+                <div class="summary-card locked" id="summary3">
+                    <div class="summary-header locked" data-progress="3">
+                        <div class="summary-title">
+                            <div class="summary-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <span>3. Pembelian Alat</span>
+                        </div>
+                        <div class="summary-status">
+                            <div class="deadline-compact" id="deadlineCompact3">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineText3">3 hari</span>
+                            </div>
+                            <div class="status-badge status-locked" id="statusBadge3">Terkunci</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-info">
+                        <div class="summary-target">Alat: <span id="completedAlatCompact3">0/5</span> dibeli</div>
+                        <div class="summary-percent" id="percentAlatCompact3">0%</div>
+                    </div>
+                    
+                    <div class="progress-bar-sm">
+                        <div class="progress-fill-sm" id="progressFillCompact3"></div>
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="detail-view" id="detail3">
+                        <div class="detail-header">
+                            <div class="detail-title">Detail Pembelian Alat</div>
+                            <div class="deadline-info-compact" id="deadlineDetail3">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineTimerDetail3">3 hari 00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <!-- Progress saat ini -->
+                            <div class="progress-current" id="alatCurrent">
+                                <span>Progress:</span>
+                                <span class="current-value" id="alatCurrentValue">0/5 alat</span>
+                            </div>
+                            
+                            <div class="checklist-container">
+                                <h3 class="checklist-title">Daftar Alat yang Harus Dibeli:</h3>
+                                <div class="checklist-item" id="alatMeja">
+                                    <div class="checklist-checkbox locked" data-alat="meja">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">
+                                        <strong>Meja</strong> - Rp 200.000 – Rp 250.000
+                                    </div>
+                                </div>
+                                <div class="checklist-item" id="alatNampan">
+                                    <div class="checklist-checkbox locked" data-alat="nampan">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">
+                                        <strong>Nampan</strong> - Rp 150.000
+                                    </div>
+                                </div>
+                                <div class="checklist-item" id="alatTenda">
+                                    <div class="checklist-checkbox locked" data-alat="tenda">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">
+                                        <strong>Tenda 3x3</strong> - Rp 550.000
+                                    </div>
+                                </div>
+                                <div class="checklist-item" id="alatPlastik">
+                                    <div class="checklist-checkbox locked" data-alat="plastik">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">
+                                        <strong>Plastik Kemasan</strong> - Rp 50.000
+                                    </div>
+                                </div>
+                                <div class="checklist-item" id="alatKursi">
+                                    <div class="checklist-checkbox locked" data-alat="kursi">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="checklist-label">
+                                        <strong>Kursi</strong> - Rp 50.000
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Info selesai -->
+                            <div class="complete-info" id="alatCompleteInfo" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="complete-info-text">Pembelian alat telah selesai!</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 20px;">
+                                <button class="btn btn-primary" id="completeAlatBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Selesaikan Pembelian Alat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress 4: Modal Kembalian -->
+                <div class="summary-card locked" id="summary4">
+                    <div class="summary-header locked" data-progress="4">
+                        <div class="summary-title">
+                            <div class="summary-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <span>4. Pengaturan Modal Kembalian</span>
+                        </div>
+                        <div class="summary-status">
+                            <div class="deadline-compact" id="deadlineCompact4">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineText4">30:00</span>
+                            </div>
+                            <div class="status-badge status-locked" id="statusBadge4">Terkunci</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-info">
+                        <div class="summary-target">Target: <span>Rp 200.000</span></div>
+                        <div class="summary-percent" id="percentKembalianCompact4">0%</div>
+                    </div>
+                    
+                    <div class="progress-bar-sm">
+                        <div class="progress-fill-sm" id="progressFillCompact4"></div>
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="detail-view" id="detail4">
+                        <div class="detail-header">
+                            <div class="detail-title">Detail Pengaturan Modal Kembalian</div>
+                            <div class="deadline-info-compact" id="deadlineDetail4">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineTimerDetail4">30:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <!-- Progress saat ini -->
+                            <div class="progress-current" id="kembalianCurrent">
+                                <span>Modal Kembalian:</span>
+                                <span class="current-value" id="kembalianCurrentValue">Rp 0 / Rp 200.000</span>
+                            </div>
+                            
+                            <!-- Input Form (akan disembunyikan saat selesai) -->
+                            <div class="input-form" id="kembalianInputForm">
+                                <h3 class="form-title">
+                                    <i class="fas fa-money-check-alt"></i> Input Modal Kembalian
+                                </h3>
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        Jumlah Modal Kembalian (Rp)
+                                    </label>
+                                    <input type="text" id="kembalianAmount" class="form-input" 
+                                           placeholder="Contoh: 200.000" required>
+                                    <div class="form-help">Target: Rp 200.000 untuk transaksi harian</div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="cancelKembalianBtn">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                    <button class="btn btn-primary" id="saveKembalianBtn">
+                                        <i class="fas fa-save"></i> Simpan Modal Kembalian
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Info selesai -->
+                            <div class="complete-info" id="kembalianCompleteInfo" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="complete-info-text">Pengaturan modal kembalian telah selesai!</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 15px;">
+                                <button class="btn btn-success" id="openKembalianInputBtn">
+                                    <i class="fas fa-plus-circle"></i> Input Modal Kembalian
+                                </button>
+                                <button class="btn btn-primary" id="completeKembalianBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Selesaikan Pengaturan Kembalian
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress 5: Kerja Sama Supplier -->
+                <div class="summary-card locked" id="summary5">
+                    <div class="summary-header locked" data-progress="5">
+                        <div class="summary-title">
+                            <div class="summary-icon">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                            <span>5. Kerja Sama Supplier</span>
+                        </div>
+                        <div class="summary-status">
+                            <div class="deadline-compact" id="deadlineCompact5">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineText5">7 hari</span>
+                            </div>
+                            <div class="status-badge status-locked" id="statusBadge5">Terkunci</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-info">
+                        <div class="summary-target">Supplier: <span id="completedSupplierCompact5">0/12</span> terkumpul</div>
+                        <div class="summary-percent" id="percentSupplierCompact5">0%</div>
+                    </div>
+                    
+                    <div class="progress-bar-sm">
+                        <div class="progress-fill-sm" id="progressFillCompact5"></div>
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="detail-view" id="detail5">
+                        <div class="detail-header">
+                            <div class="detail-title">Detail Kerja Sama Supplier</div>
+                            <div class="deadline-info-compact" id="deadlineDetail5">
+                                <i class="fas fa-clock"></i>
+                                <span id="deadlineTimerDetail5">7 hari 00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            <!-- Progress saat ini -->
+                            <div class="progress-current" id="supplierCurrent">
+                                <span>Supplier Terkumpul:</span>
+                                <span class="current-value" id="supplierCurrentValue">0/12 supplier</span>
+                            </div>
+                            
+                            <!-- Input Form (akan disembunyikan saat selesai) -->
+                            <div class="input-form" id="supplierInputForm">
+                                <h3 class="form-title">
+                                    <i class="fas fa-user-plus"></i> Input Jumlah Supplier
+                                </h3>
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        Jumlah Supplier yang Telah Dikerjasamai
+                                    </label>
+                                    <input type="number" id="supplierCount" class="form-input" 
+                                           min="0" max="12" placeholder="Contoh: 5" required>
+                                    <div class="form-help">Target: 12 supplier</div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="cancelSupplierBtn">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                    <button class="btn btn-primary" id="saveSupplierBtn">
+                                        <i class="fas fa-save"></i> Simpan Jumlah Supplier
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Info selesai -->
+                            <div class="complete-info" id="supplierCompleteInfo" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="complete-info-text">Kerja sama supplier telah selesai!</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 15px;">
+                                <button class="btn btn-success" id="openSupplierInputBtn">
+                                    <i class="fas fa-plus-circle"></i> Input Jumlah Supplier
+                                </button>
+                                <button class="btn btn-primary" id="completeSupplierBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Selesaikan Kerja Sama Supplier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tombol Selesaikan Usaha -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-success btn-lg" id="completeCurrentUsahaBtn" disabled>
+                        <i class="fas fa-flag-checkered"></i> SELESAIKAN USAHA <span id="currentUsahaNumber">1</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Fupa Snack - Sistem Manajemen Progres Pembukaan Cabang © 2023</p>
+                <p>Data disimpan secara online per user | Sistem Lock/Unlock Berurutan dengan Deadline</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // ==================== KONFIGURASI FIREBASE ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtw5rCaW3hexOhlqnCwxFZVJN6fnf6gJA",
+            authDomain: "progresfupasnack.firebaseapp.com",
+            projectId: "progresfupasnack",
+            storageBucket: "progresfupasnack.firebasestorage.app",
+            messagingSenderId: "1074955974226",
+            appId: "1:1074955974226:web:60d2389d28f9908641518b"
+        };
+        
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // ==================== KONFIGURASI AWAL ====================
+        const DEADLINES = {
+            MODAL: 20 * 24 * 60 * 60 * 1000, // 20 hari dalam milidetik
+            TEMPAT: 7 * 24 * 60 * 60 * 1000, // 7 hari
+            ALAT: 3 * 24 * 60 * 60 * 1000, // 3 hari
+            KEMBALIAN: 30 * 60 * 1000, // 30 menit
+            SUPPLIER: 7 * 24 * 60 * 60 * 1000 // 7 hari
+        };
+        
+        // Data model untuk aplikasi
+        const appState = {
+            currentUsaha: 1,
+            usaha1: {
+                started: false,
+                startTime: null,
+                modal: {
+                    target: 1600000,
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null // waktu keterlambatan dalam milidetik
+                },
+                tempat: {
+                    completedSteps: 0,
+                    totalSteps: 4,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    steps: {
+                        izin: false,
+                        dp: false,
+                        pelunasan: false,
+                        siap: false
+                    }
+                },
+                alat: {
+                    purchasedItems: 0,
+                    totalItems: 5,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    items: {
+                        meja: false,
+                        nampan: false,
+                        tenda: false,
+                        plastik: false,
+                        kursi: false
+                    }
+                },
+                kembalian: {
+                    target: 200000,
+                    prepared: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                supplier: {
+                    target: 12,
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                completed: false
+            },
+            usaha2: { 
+                started: false,
+                startTime: null,
+                modal: {
+                    target: 1600000, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                tempat: {
+                    completedSteps: 0,
+                    totalSteps: 4,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    steps: {
+                        izin: false,
+                        dp: false,
+                        pelunasan: false,
+                        siap: false
+                    }
+                },
+                alat: {
+                    purchasedItems: 0,
+                    totalItems: 5,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    items: {
+                        meja: false,
+                        nampan: false,
+                        tenda: false,
+                        plastik: false,
+                        kursi: false
+                    }
+                },
+                kembalian: {
+                    target: 200000, // SAMA DENGAN USAHA 1
+                    prepared: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                supplier: {
+                    target: 12, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                completed: false
+            },
+            usaha3: { 
+                started: false,
+                startTime: null,
+                modal: {
+                    target: 1600000, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                tempat: {
+                    completedSteps: 0,
+                    totalSteps: 4,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    steps: {
+                        izin: false,
+                        dp: false,
+                        pelunasan: false,
+                        siap: false
+                    }
+                },
+                alat: {
+                    purchasedItems: 0,
+                    totalItems: 5,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    items: {
+                        meja: false,
+                        nampan: false,
+                        tenda: false,
+                        plastik: false,
+                        kursi: false
+                    }
+                },
+                kembalian: {
+                    target: 200000, // SAMA DENGAN USAHA 1
+                    prepared: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                supplier: {
+                    target: 12, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                completed: false
+            },
+            usaha4: { 
+                started: false,
+                startTime: null,
+                modal: {
+                    target: 1600000, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                tempat: {
+                    completedSteps: 0,
+                    totalSteps: 4,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    steps: {
+                        izin: false,
+                        dp: false,
+                        pelunasan: false,
+                        siap: false
+                    }
+                },
+                alat: {
+                    purchasedItems: 0,
+                    totalItems: 5,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    items: {
+                        meja: false,
+                        nampan: false,
+                        tenda: false,
+                        plastik: false,
+                        kursi: false
+                    }
+                },
+                kembalian: {
+                    target: 200000, // SAMA DENGAN USAHA 1
+                    prepared: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                supplier: {
+                    target: 12, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                completed: false
+            },
+            usaha5: { 
+                started: false,
+                startTime: null,
+                modal: {
+                    target: 1600000, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                tempat: {
+                    completedSteps: 0,
+                    totalSteps: 4,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    steps: {
+                        izin: false,
+                        dp: false,
+                        pelunasan: false,
+                        siap: false
+                    }
+                },
+                alat: {
+                    purchasedItems: 0,
+                    totalItems: 5,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null,
+                    items: {
+                        meja: false,
+                        nampan: false,
+                        tenda: false,
+                        plastik: false,
+                        kursi: false
+                    }
+                },
+                kembalian: {
+                    target: 200000, // SAMA DENGAN USAHA 1
+                    prepared: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                supplier: {
+                    target: 12, // SAMA DENGAN USAHA 1
+                    collected: 0,
+                    completed: false,
+                    startTime: null,
+                    deadline: null,
+                    lateBy: null
+                },
+                completed: false
+            },
+            activeDetail: null // Menyimpan detail yang sedang aktif
+        };
+        
+        // ==================== FUNGSI AUTHENTIKASI ====================
+        let currentUser = null;
+        
+        // Cek status login saat halaman dimuat
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User sudah login
+                currentUser = user;
+                showApp();
+                await loadUserData();
+            } else {
+                // User belum login
+                showLogin();
+            }
+        });
+        
+        // Fungsi login
+        async function loginUser(email, password) {
+            try {
+                showLoginLoading(true);
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                showApp();
+                await loadUserData();
+                showLoginLoading(false);
+            } catch (error) {
+                showLoginLoading(false);
+                showLoginError(error.message);
+            }
+        }
+        
+        // Fungsi logout
+        function logoutUser() {
+            auth.signOut().then(() => {
+                currentUser = null;
+                showLogin();
+            });
+        }
+        
+        // ==================== FUNGSI FIRESTORE ====================
+        async function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                await userRef.set({
+                    ...appState,
+                    lastUpdated: new Date(),
+                    email: currentUser.email
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showAlert('Gagal menyimpan data ke server', 'danger');
+            }
+        }
+        
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const doc = await userRef.get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    // Convert Firestore timestamps to Date objects
+                    const convertTimestamps = (obj) => {
+                        for (let key in obj) {
+                            if (obj[key] && typeof obj[key] === 'object') {
+                                if (obj[key].toDate && typeof obj[key].toDate === 'function') {
+                                    obj[key] = obj[key].toDate();
+                                } else {
+                                    convertTimestamps(obj[key]);
+                                }
+                            }
+                        }
+                    };
+                    
+                    convertTimestamps(data);
+                    
+                    // Update appState dengan data dari Firestore
+                    Object.assign(appState, data);
+                    
+                    // Update UI
+                    updateUI();
+                    updateRoadmap();
+                    startDeadlineTimers();
+                    
+                    // Update user email display
+                    document.getElementById('userEmail').textContent = currentUser.email;
+                } else {
+                    // Jika belum ada data, buat data baru
+                    await saveUserData();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showAlert('Gagal memuat data dari server', 'warning');
+            }
+        }
+        
+        // ==================== INISIALISASI APLIKASI ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup event listeners untuk login
+            setupLoginListeners();
+            
+            // Setup event listeners untuk aplikasi utama
+            setupAppListeners();
+            
+            // Update waktu real-time
+            updateRealTime();
+            setInterval(updateRealTime, 1000);
+        });
+        
+        function setupLoginListeners() {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            // Set default login untuk testing
+            emailInput.value = 'karomi@fupa.id';
+            passwordInput.value = 'annisa';
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                
+                // Validasi sederhana
+                let isValid = true;
+                
+                if (!email) {
+                    showFormError('emailError', 'Email harus diisi');
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    showFormError('emailError', 'Format email tidak valid');
+                    isValid = false;
+                } else {
+                    hideFormError('emailError');
+                }
+                
+                if (!password) {
+                    showFormError('passwordError', 'Password harus diisi');
+                    isValid = false;
+                } else {
+                    hideFormError('passwordError');
+                }
+                
+                if (isValid) {
+                    loginUser(email, password);
+                }
+            });
+        }
+        
+        function setupAppListeners() {
+            // 1. Tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+            
+            // 2. Tombol mulai usaha
+            document.getElementById('startUsaha1Btn').addEventListener('click', startCurrentUsaha);
+            
+            // 3. Event listener untuk membuka detail progres
+            document.querySelectorAll('.summary-header').forEach(header => {
+                header.addEventListener('click', function(e) {
+                    // Cegah event jika header terkunci
+                    if (this.classList.contains('locked')) {
+                        return;
+                    }
+                    
+                    // Cegah event jika mengklik pada elemen yang bukan header
+                    if (e.target.closest('button') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    
+                    const progressNum = this.getAttribute('data-progress');
+                    toggleDetailView(progressNum);
+                });
+            });
+            
+            // 4. Progress 1: Pengumpulan Modal
+            document.getElementById('openModalInputBtn').addEventListener('click', () => {
+                document.getElementById('modalInputForm').style.display = 'block';
+                document.getElementById('openModalInputBtn').style.display = 'none';
+                document.getElementById('setoranAmount').focus();
+            });
+            
+            document.getElementById('cancelSetoranBtn').addEventListener('click', () => {
+                document.getElementById('modalInputForm').style.display = 'none';
+                document.getElementById('openModalInputBtn').style.display = 'block';
+                resetModalForm();
+            });
+            
+            document.getElementById('saveSetoranBtn').addEventListener('click', saveSetoran);
+            document.getElementById('completeModalBtn').addEventListener('click', completeModal);
+            
+            // 5. Progress 2: Persiapan Tempat
+            document.querySelectorAll('.checklist-checkbox[data-step]').forEach(checkbox => {
+                checkbox.addEventListener('click', function(e) {
+                    // Cegah event jika sudah locked
+                    if (this.classList.contains('locked')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    
+                    const step = this.getAttribute('data-step');
+                    toggleTempatStep(step);
+                });
+            });
+            
+            document.getElementById('completeTempatBtn').addEventListener('click', completeTempat);
+            
+            // 6. Progress 3: Pembelian Alat
+            document.querySelectorAll('.checklist-checkbox[data-alat]').forEach(checkbox => {
+                checkbox.addEventListener('click', function(e) {
+                    // Cegah event jika sudah locked
+                    if (this.classList.contains('locked')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    
+                    const alat = this.getAttribute('data-alat');
+                    toggleAlatItem(alat);
+                });
+            });
+            
+            document.getElementById('completeAlatBtn').addEventListener('click', completeAlat);
+            
+            // 7. Progress 4: Modal Kembalian
+            document.getElementById('openKembalianInputBtn').addEventListener('click', () => {
+                document.getElementById('kembalianInputForm').style.display = 'block';
+                document.getElementById('openKembalianInputBtn').style.display = 'none';
+                document.getElementById('kembalianAmount').focus();
+            });
+            
+            document.getElementById('cancelKembalianBtn').addEventListener('click', () => {
+                document.getElementById('kembalianInputForm').style.display = 'none';
+                document.getElementById('openKembalianInputBtn').style.display = 'block';
+                resetKembalianForm();
+            });
+            
+            document.getElementById('saveKembalianBtn').addEventListener('click', saveKembalian);
+            document.getElementById('completeKembalianBtn').addEventListener('click', completeKembalian);
+            
+            // 8. Progress 5: Kerja Sama Supplier
+            document.getElementById('openSupplierInputBtn').addEventListener('click', () => {
+                document.getElementById('supplierInputForm').style.display = 'block';
+                document.getElementById('openSupplierInputBtn').style.display = 'none';
+                document.getElementById('supplierCount').focus();
+            });
+            
+            document.getElementById('cancelSupplierBtn').addEventListener('click', () => {
+                document.getElementById('supplierInputForm').style.display = 'none';
+                document.getElementById('openSupplierInputBtn').style.display = 'block';
+                resetSupplierForm();
+            });
+            
+            document.getElementById('saveSupplierBtn').addEventListener('click', saveSupplier);
+            document.getElementById('completeSupplierBtn').addEventListener('click', completeSupplier);
+            
+            // 9. Tombol selesaikan usaha
+            document.getElementById('completeCurrentUsahaBtn').addEventListener('click', completeCurrentUsaha);
+            
+            // 10. Setup input formatting
+            setupInputFormatting();
+        }
+        
+        // ==================== FUNGSI UTILITAS ====================
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+        
+        function showApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+        
+        function showLoginLoading(isLoading) {
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            
+            if (isLoading) {
+                loginBtn.disabled = true;
+                loginBtnText.style.display = 'none';
+                loginSpinner.style.display = 'block';
+                document.getElementById('loginError').style.display = 'none';
+            } else {
+                loginBtn.disabled = false;
+                loginBtnText.style.display = 'block';
+                loginSpinner.style.display = 'none';
+            }
+        }
+        
+        function showLoginError(message) {
+            const loginError = document.getElementById('loginError');
+            const loginErrorText = document.getElementById('loginErrorText');
+            
+            loginErrorText.textContent = message;
+            loginError.style.display = 'flex';
+        }
+        
+        function showFormError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.classList.add('active');
+        }
+        
+        function hideFormError(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.remove('active');
+        }
+        
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        function updateRealTime() {
+            const now = new Date();
+            const timeElement = document.getElementById('currentTime');
+            const dateElement = document.getElementById('currentDate');
+            
+            // Format waktu
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // Format tanggal
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 
+                           'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+            dateElement.textContent = `${dayName}, ${date} ${monthName} ${year}`;
+        }
+        
+        function formatTimeRemaining(milliseconds) {
+            if (milliseconds <= 0) return "Waktu Habis!";
+            
+            const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((milliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+            
+            if (days > 0) {
+                return `${days} hari ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        function formatTimeLate(milliseconds) {
+            if (milliseconds <= 0) return "Tepat waktu";
+            
+            const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((milliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (days > 0) {
+                return `Terlambat ${days} hari ${hours} jam`;
+            } else if (hours > 0) {
+                return `Terlambat ${hours} jam ${minutes} menit`;
+            } else {
+                return `Terlambat ${minutes} menit`;
+            }
+        }
+        
+        function formatCurrency(amount, showFull = false) {
+            if (amount === 0) return "Rp 0";
+            
+            const formatted = amount.toLocaleString('id-ID');
+            return showFull ? `Rp ${formatted}` : formatted;
+        }
+        
+        function parseCurrency(value) {
+            if (!value) return 0;
+            // Hapus semua karakter selain angka
+            const numericString = value.replace(/[^0-9]/g, '');
+            return parseInt(numericString) || 0;
+        }
+        
+        function formatNumberInput(value) {
+            if (!value) return '';
+            const num = parseCurrency(value);
+            return formatCurrency(num, false);
+        }
+        
+        function setupInputFormatting() {
+            // Format input mata uang
+            const currencyInputs = document.querySelectorAll('input[type="text"][id$="Amount"]');
+            currencyInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const cursorPosition = this.selectionStart;
+                    const originalLength = this.value.length;
+                    
+                    // Format nilai
+                    this.value = formatNumberInput(this.value);
+                    
+                    // Atur posisi kursor
+                    const newLength = this.value.length;
+                    const lengthDiff = newLength - originalLength;
+                    this.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        this.value = formatCurrency(parseCurrency(this.value), false);
+                    }
+                });
+            });
+        }
+        
+        // ==================== UPDATE UI ====================
+        function updateUI() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Update nomor usaha di tombol dan teks
+            document.getElementById('currentUsahaNumber').textContent = currentUsaha;
+            document.getElementById('currentUsahaNumberStart').textContent = currentUsaha;
+            document.getElementById('startUsaha1Btn').innerHTML = `<i class="fas fa-unlock"></i> BUKA USAHA ${currentUsaha}`;
+            
+            // Tampilkan/sembunyikan container yang sesuai
+            const startContainer = document.getElementById('startContainer');
+            const usahaContainer = document.getElementById('usahaContainer');
+            
+            if (usaha.started) {
+                startContainer.style.display = 'none';
+                usahaContainer.classList.add('active');
+                updateProgressDisplays();
+            } else {
+                startContainer.style.display = 'block';
+                usahaContainer.classList.remove('active');
+            }
+            
+            // Update roadmap
+            updateRoadmap();
+            
+            // Update progress displays untuk usaha saat ini
+            updateProgressDisplays();
+            
+            // Update tombol-tombol
+            updateButtons();
+            
+            // Update status badges
+            updateStatusBadges();
+            
+            // Update input forms visibility
+            updateInputFormsVisibility();
+            
+            // Update current values display
+            updateCurrentValues();
+        }
+        
+        function updateRoadmap() {
+            // Update semua step roadmap
+            for (let i = 1; i <= 5; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                const statusElement = document.querySelector(`#step${i} + .step-label + .step-status`);
+                const usaha = appState[`usaha${i}`];
+                
+                if (i < appState.currentUsaha) {
+                    // Usaha sebelumnya yang sudah selesai
+                    stepElement.className = 'step-indicator completed';
+                    statusElement.className = 'step-status status-completed';
+                    statusElement.textContent = 'Selesai';
+                } else if (i === appState.currentUsaha) {
+                    // Usaha saat ini
+                    if (appState[`usaha${i}`].completed) {
+                        stepElement.className = 'step-indicator completed';
+                        statusElement.className = 'step-status status-completed';
+                        statusElement.textContent = 'Selesai';
+                    } else if (appState[`usaha${i}`].started) {
+                        stepElement.className = 'step-indicator active';
+                        statusElement.className = 'step-status status-active';
+                        statusElement.textContent = 'Berjalan';
+                    } else {
+                        stepElement.className = 'step-indicator locked';
+                        statusElement.className = 'step-status status-locked';
+                        statusElement.textContent = 'Terkunci';
+                    }
+                } else if (i === appState.currentUsaha + 1 && appState[`usaha${appState.currentUsaha}`].completed) {
+                    // Usaha berikutnya yang bisa dibuka
+                    stepElement.className = 'step-indicator active';
+                    statusElement.className = 'step-status status-active';
+                    statusElement.textContent = 'Terkunci';
+                } else {
+                    // Usaha yang masih terkunci
+                    stepElement.className = 'step-indicator locked';
+                    statusElement.className = 'step-status status-locked';
+                    statusElement.textContent = 'Terkunci';
+                }
+            }
+        }
+        
+        function updateProgressDisplays() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Pengumpulan Modal
+            const modalPercent = Math.min(100, (usaha.modal.collected / usaha.modal.target) * 100);
+            document.getElementById('progressFillCompact1').style.width = `${modalPercent}%`;
+            document.getElementById('percentModalCompact1').textContent = `${modalPercent.toFixed(1)}%`;
+            document.getElementById('targetModalCompact1').textContent = `Rp ${formatCurrency(usaha.modal.target)}`;
+            
+            // Update warna progress bar jika selesai
+            if (usaha.modal.completed) {
+                document.getElementById('progressFillCompact1').classList.add('completed');
+                document.getElementById('percentModalCompact1').classList.add('completed');
+            } else {
+                document.getElementById('progressFillCompact1').classList.remove('completed');
+                document.getElementById('percentModalCompact1').classList.remove('completed');
+            }
+            
+            // Progress 2: Persiapan Tempat
+            const tempatPercent = (usaha.tempat.completedSteps / usaha.tempat.totalSteps) * 100;
+            document.getElementById('progressFillCompact2').style.width = `${tempatPercent}%`;
+            document.getElementById('percentTempatCompact2').textContent = `${tempatPercent.toFixed(1)}%`;
+            document.getElementById('completedStepsCompact2').textContent = `${usaha.tempat.completedSteps}/${usaha.tempat.totalSteps}`;
+            
+            if (usaha.tempat.completed) {
+                document.getElementById('progressFillCompact2').classList.add('completed');
+                document.getElementById('percentTempatCompact2').classList.add('completed');
+            } else {
+                document.getElementById('progressFillCompact2').classList.remove('completed');
+                document.getElementById('percentTempatCompact2').classList.remove('completed');
+            }
+            
+            // Update checklist tempat
+            updateChecklistDisplay('tempat');
+            
+            // Progress 3: Pembelian Alat
+            const alatPercent = (usaha.alat.purchasedItems / usaha.alat.totalItems) * 100;
+            document.getElementById('progressFillCompact3').style.width = `${alatPercent}%`;
+            document.getElementById('percentAlatCompact3').textContent = `${alatPercent.toFixed(1)}%`;
+            document.getElementById('completedAlatCompact3').textContent = `${usaha.alat.purchasedItems}/${usaha.alat.totalItems}`;
+            
+            if (usaha.alat.completed) {
+                document.getElementById('progressFillCompact3').classList.add('completed');
+                document.getElementById('percentAlatCompact3').classList.add('completed');
+            } else {
+                document.getElementById('progressFillCompact3').classList.remove('completed');
+                document.getElementById('percentAlatCompact3').classList.remove('completed');
+            }
+            
+            // Update checklist alat
+            updateChecklistDisplay('alat');
+            
+            // Progress 4: Modal Kembalian
+            const kembalianPercent = Math.min(100, (usaha.kembalian.prepared / usaha.kembalian.target) * 100);
+            document.getElementById('progressFillCompact4').style.width = `${kembalianPercent}%`;
+            document.getElementById('percentKembalianCompact4').textContent = `${kembalianPercent.toFixed(1)}%`;
+            
+            if (usaha.kembalian.completed) {
+                document.getElementById('progressFillCompact4').classList.add('completed');
+                document.getElementById('percentKembalianCompact4').classList.add('completed');
+            } else {
+                document.getElementById('progressFillCompact4').classList.remove('completed');
+                document.getElementById('percentKembalianCompact4').classList.remove('completed');
+            }
+            
+            // Progress 5: Supplier
+            const supplierPercent = (usaha.supplier.collected / usaha.supplier.target) * 100;
+            document.getElementById('progressFillCompact5').style.width = `${supplierPercent}%`;
+            document.getElementById('percentSupplierCompact5').textContent = `${supplierPercent.toFixed(1)}%`;
+            document.getElementById('completedSupplierCompact5').textContent = `${usaha.supplier.collected}/${usaha.supplier.target}`;
+            
+            if (usaha.supplier.completed) {
+                document.getElementById('progressFillCompact5').classList.add('completed');
+                document.getElementById('percentSupplierCompact5').classList.add('completed');
+            } else {
+                document.getElementById('progressFillCompact5').classList.remove('completed');
+                document.getElementById('percentSupplierCompact5').classList.remove('completed');
+            }
+        }
+        
+        function updateCurrentValues() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Modal
+            const modalCurrentValue = document.getElementById('modalCurrentValue');
+            const modalRemaining = document.getElementById('modalRemaining');
+            if (modalCurrentValue) {
+                modalCurrentValue.textContent = `Rp ${formatCurrency(usaha.modal.collected)} / Rp ${formatCurrency(usaha.modal.target)}`;
+            }
+            if (modalRemaining) {
+                const remaining = usaha.modal.target - usaha.modal.collected;
+                modalRemaining.textContent = `Rp ${formatCurrency(Math.max(0, remaining))}`;
+            }
+            
+            // Progress 2: Tempat
+            const tempatCurrentValue = document.getElementById('tempatCurrentValue');
+            if (tempatCurrentValue) {
+                tempatCurrentValue.textContent = `${usaha.tempat.completedSteps}/${usaha.tempat.totalSteps} langkah`;
+            }
+            
+            // Progress 3: Alat
+            const alatCurrentValue = document.getElementById('alatCurrentValue');
+            if (alatCurrentValue) {
+                alatCurrentValue.textContent = `${usaha.alat.purchasedItems}/${usaha.alat.totalItems} alat`;
+            }
+            
+            // Progress 4: Kembalian
+            const kembalianCurrentValue = document.getElementById('kembalianCurrentValue');
+            if (kembalianCurrentValue) {
+                kembalianCurrentValue.textContent = `Rp ${formatCurrency(usaha.kembalian.prepared)} / Rp ${formatCurrency(usaha.kembalian.target)}`;
+            }
+            
+            // Progress 5: Supplier
+            const supplierCurrentValue = document.getElementById('supplierCurrentValue');
+            if (supplierCurrentValue) {
+                supplierCurrentValue.textContent = `${usaha.supplier.collected}/${usaha.supplier.target} supplier`;
+            }
+        }
+        
+        function updateChecklistDisplay(type) {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (type === 'tempat') {
+                const steps = usaha.tempat.steps;
+                Object.keys(steps).forEach(stepKey => {
+                    const element = document.querySelector(`.checklist-checkbox[data-step="${stepKey}"]`);
+                    const parent = element.closest('.checklist-item');
+                    
+                    if (steps[stepKey]) {
+                        element.classList.add('checked');
+                        element.classList.add('locked'); // Lock setelah selesai
+                        parent.classList.add('completed');
+                    } else {
+                        element.classList.remove('checked');
+                        element.classList.remove('locked');
+                        parent.classList.remove('completed');
+                    }
+                });
+            } else if (type === 'alat') {
+                const items = usaha.alat.items;
+                Object.keys(items).forEach(itemKey => {
+                    const element = document.querySelector(`.checklist-checkbox[data-alat="${itemKey}"]`);
+                    const parent = element.closest('.checklist-item');
+                    
+                    if (items[itemKey]) {
+                        element.classList.add('checked');
+                        element.classList.add('locked'); // Lock setelah selesai
+                        parent.classList.add('completed');
+                    } else {
+                        element.classList.remove('checked');
+                        element.classList.remove('locked');
+                        parent.classList.remove('completed');
+                    }
+                });
+            }
+        }
+        
+        function updateInputFormsVisibility() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Modal
+            const modalInputForm = document.getElementById('modalInputForm');
+            const modalCompleteInfo = document.getElementById('modalCompleteInfo');
+            const openModalInputBtn = document.getElementById('openModalInputBtn');
+            
+            if (usaha.modal.completed) {
+                if (modalInputForm) modalInputForm.style.display = 'none';
+                if (modalCompleteInfo) modalCompleteInfo.style.display = 'flex';
+                if (openModalInputBtn) openModalInputBtn.style.display = 'none';
+            } else if (usaha.modal.startTime) {
+                if (modalInputForm) modalInputForm.style.display = 'none';
+                if (modalCompleteInfo) modalCompleteInfo.style.display = 'none';
+                if (openModalInputBtn) openModalInputBtn.style.display = 'block';
+            } else {
+                if (modalInputForm) modalInputForm.style.display = 'none';
+                if (modalCompleteInfo) modalCompleteInfo.style.display = 'none';
+                if (openModalInputBtn) openModalInputBtn.style.display = 'none';
+            }
+            
+            // Progress 2: Tempat
+            const tempatCompleteInfo = document.getElementById('tempatCompleteInfo');
+            if (tempatCompleteInfo) {
+                tempatCompleteInfo.style.display = usaha.tempat.completed ? 'flex' : 'none';
+            }
+            
+            // Progress 3: Alat
+            const alatCompleteInfo = document.getElementById('alatCompleteInfo');
+            if (alatCompleteInfo) {
+                alatCompleteInfo.style.display = usaha.alat.completed ? 'flex' : 'none';
+            }
+            
+            // Progress 4: Kembalian
+            const kembalianInputForm = document.getElementById('kembalianInputForm');
+            const kembalianCompleteInfo = document.getElementById('kembalianCompleteInfo');
+            const openKembalianInputBtn = document.getElementById('openKembalianInputBtn');
+            
+            if (usaha.kembalian.completed) {
+                if (kembalianInputForm) kembalianInputForm.style.display = 'none';
+                if (kembalianCompleteInfo) kembalianCompleteInfo.style.display = 'flex';
+                if (openKembalianInputBtn) openKembalianInputBtn.style.display = 'none';
+            } else if (usaha.alat.completed) {
+                if (kembalianInputForm) kembalianInputForm.style.display = 'none';
+                if (kembalianCompleteInfo) kembalianCompleteInfo.style.display = 'none';
+                if (openKembalianInputBtn) openKembalianInputBtn.style.display = 'block';
+            } else {
+                if (kembalianInputForm) kembalianInputForm.style.display = 'none';
+                if (kembalianCompleteInfo) kembalianCompleteInfo.style.display = 'none';
+                if (openKembalianInputBtn) openKembalianInputBtn.style.display = 'none';
+            }
+            
+            // Progress 5: Supplier
+            const supplierInputForm = document.getElementById('supplierInputForm');
+            const supplierCompleteInfo = document.getElementById('supplierCompleteInfo');
+            const openSupplierInputBtn = document.getElementById('openSupplierInputBtn');
+            
+            if (usaha.supplier.completed) {
+                if (supplierInputForm) supplierInputForm.style.display = 'none';
+                if (supplierCompleteInfo) supplierCompleteInfo.style.display = 'flex';
+                if (openSupplierInputBtn) openSupplierInputBtn.style.display = 'none';
+            } else if (usaha.kembalian.completed) {
+                if (supplierInputForm) supplierInputForm.style.display = 'none';
+                if (supplierCompleteInfo) supplierCompleteInfo.style.display = 'none';
+                if (openSupplierInputBtn) openSupplierInputBtn.style.display = 'block';
+            } else {
+                if (supplierInputForm) supplierInputForm.style.display = 'none';
+                if (supplierCompleteInfo) supplierCompleteInfo.style.display = 'none';
+                if (openSupplierInputBtn) openSupplierInputBtn.style.display = 'none';
+            }
+        }
+        
+        function updateStatusBadges() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Modal
+            const statusBadge1 = document.getElementById('statusBadge1');
+            const deadlineCompact1 = document.getElementById('deadlineCompact1');
+            const deadlineText1 = document.getElementById('deadlineText1');
+            const summaryHeader1 = document.querySelector('#summary1 .summary-header');
+            
+            if (usaha.modal.completed) {
+                statusBadge1.className = 'status-badge status-completed';
+                statusBadge1.textContent = 'Selesai';
+                deadlineCompact1.style.display = 'none';
+                if (summaryHeader1) summaryHeader1.classList.remove('locked');
+            } else if (usaha.modal.startTime) {
+                statusBadge1.className = 'status-badge status-active';
+                statusBadge1.textContent = 'Berjalan';
+                deadlineCompact1.style.display = 'flex';
+                if (summaryHeader1) summaryHeader1.classList.remove('locked');
+                
+                // Update deadline text
+                if (usaha.modal.deadline) {
+                    const now = new Date();
+                    const timeRemaining = usaha.modal.deadline - now;
+                    
+                    if (timeRemaining <= 0 && usaha.modal.lateBy) {
+                        deadlineText1.textContent = formatTimeLate(usaha.modal.lateBy);
+                        deadlineCompact1.classList.add('late');
+                    }
+                }
+            } else {
+                statusBadge1.className = 'status-badge status-locked';
+                statusBadge1.textContent = 'Terkunci';
+                deadlineCompact1.style.display = 'flex';
+                if (summaryHeader1) summaryHeader1.classList.add('locked');
+            }
+            
+            // Progress 2: Tempat
+            const statusBadge2 = document.getElementById('statusBadge2');
+            const summary2 = document.getElementById('summary2');
+            const deadlineCompact2 = document.getElementById('deadlineCompact2');
+            const deadlineText2 = document.getElementById('deadlineText2');
+            const summaryHeader2 = document.querySelector('#summary2 .summary-header');
+            
+            if (usaha.tempat.completed) {
+                statusBadge2.className = 'status-badge status-completed';
+                statusBadge2.textContent = 'Selesai';
+                deadlineCompact2.style.display = 'none';
+                summary2.classList.remove('locked');
+                if (summaryHeader2) summaryHeader2.classList.remove('locked');
+            } else if (usaha.modal.completed) {
+                statusBadge2.className = 'status-badge status-active';
+                statusBadge2.textContent = 'Berjalan';
+                deadlineCompact2.style.display = 'flex';
+                summary2.classList.remove('locked');
+                if (summaryHeader2) summaryHeader2.classList.remove('locked');
+                
+                // Update deadline text
+                if (usaha.tempat.deadline) {
+                    const now = new Date();
+                    const timeRemaining = usaha.tempat.deadline - now;
+                    
+                    if (timeRemaining <= 0 && usaha.tempat.lateBy) {
+                        deadlineText2.textContent = formatTimeLate(usaha.tempat.lateBy);
+                        deadlineCompact2.classList.add('late');
+                    }
+                }
+            } else {
+                statusBadge2.className = 'status-badge status-locked';
+                statusBadge2.textContent = 'Terkunci';
+                deadlineCompact2.style.display = 'flex';
+                summary2.classList.add('locked');
+                if (summaryHeader2) summaryHeader2.classList.add('locked');
+            }
+            
+            // Progress 3: Alat
+            const statusBadge3 = document.getElementById('statusBadge3');
+            const summary3 = document.getElementById('summary3');
+            const deadlineCompact3 = document.getElementById('deadlineCompact3');
+            const deadlineText3 = document.getElementById('deadlineText3');
+            const summaryHeader3 = document.querySelector('#summary3 .summary-header');
+            
+            if (usaha.alat.completed) {
+                statusBadge3.className = 'status-badge status-completed';
+                statusBadge3.textContent = 'Selesai';
+                deadlineCompact3.style.display = 'none';
+                summary3.classList.remove('locked');
+                if (summaryHeader3) summaryHeader3.classList.remove('locked');
+            } else if (usaha.tempat.completed) {
+                statusBadge3.className = 'status-badge status-active';
+                statusBadge3.textContent = 'Berjalan';
+                deadlineCompact3.style.display = 'flex';
+                summary3.classList.remove('locked');
+                if (summaryHeader3) summaryHeader3.classList.remove('locked');
+                
+                // Update deadline text
+                if (usaha.alat.deadline) {
+                    const now = new Date();
+                    const timeRemaining = usaha.alat.deadline - now;
+                    
+                    if (timeRemaining <= 0 && usaha.alat.lateBy) {
+                        deadlineText3.textContent = formatTimeLate(usaha.alat.lateBy);
+                        deadlineCompact3.classList.add('late');
+                    }
+                }
+            } else {
+                statusBadge3.className = 'status-badge status-locked';
+                statusBadge3.textContent = 'Terkunci';
+                deadlineCompact3.style.display = 'flex';
+                summary3.classList.add('locked');
+                if (summaryHeader3) summaryHeader3.classList.add('locked');
+            }
+            
+            // Progress 4: Kembalian
+            const statusBadge4 = document.getElementById('statusBadge4');
+            const summary4 = document.getElementById('summary4');
+            const deadlineCompact4 = document.getElementById('deadlineCompact4');
+            const deadlineText4 = document.getElementById('deadlineText4');
+            const summaryHeader4 = document.querySelector('#summary4 .summary-header');
+            
+            if (usaha.kembalian.completed) {
+                statusBadge4.className = 'status-badge status-completed';
+                statusBadge4.textContent = 'Selesai';
+                deadlineCompact4.style.display = 'none';
+                summary4.classList.remove('locked');
+                if (summaryHeader4) summaryHeader4.classList.remove('locked');
+            } else if (usaha.alat.completed) {
+                statusBadge4.className = 'status-badge status-active';
+                statusBadge4.textContent = 'Berjalan';
+                deadlineCompact4.style.display = 'flex';
+                summary4.classList.remove('locked');
+                if (summaryHeader4) summaryHeader4.classList.remove('locked');
+                
+                // Update deadline text
+                if (usaha.kembalian.deadline) {
+                    const now = new Date();
+                    const timeRemaining = usaha.kembalian.deadline - now;
+                    
+                    if (timeRemaining <= 0 && usaha.kembalian.lateBy) {
+                        deadlineText4.textContent = formatTimeLate(usaha.kembalian.lateBy);
+                        deadlineCompact4.classList.add('late');
+                    }
+                }
+            } else {
+                statusBadge4.className = 'status-badge status-locked';
+                statusBadge4.textContent = 'Terkunci';
+                deadlineCompact4.style.display = 'flex';
+                summary4.classList.add('locked');
+                if (summaryHeader4) summaryHeader4.classList.add('locked');
+            }
+            
+            // Progress 5: Supplier
+            const statusBadge5 = document.getElementById('statusBadge5');
+            const summary5 = document.getElementById('summary5');
+            const deadlineCompact5 = document.getElementById('deadlineCompact5');
+            const deadlineText5 = document.getElementById('deadlineText5');
+            const summaryHeader5 = document.querySelector('#summary5 .summary-header');
+            
+            if (usaha.supplier.completed) {
+                statusBadge5.className = 'status-badge status-completed';
+                statusBadge5.textContent = 'Selesai';
+                deadlineCompact5.style.display = 'none';
+                summary5.classList.remove('locked');
+                if (summaryHeader5) summaryHeader5.classList.remove('locked');
+            } else if (usaha.kembalian.completed) {
+                statusBadge5.className = 'status-badge status-active';
+                statusBadge5.textContent = 'Berjalan';
+                deadlineCompact5.style.display = 'flex';
+                summary5.classList.remove('locked');
+                if (summaryHeader5) summaryHeader5.classList.remove('locked');
+                
+                // Update deadline text
+                if (usaha.supplier.deadline) {
+                    const now = new Date();
+                    const timeRemaining = usaha.supplier.deadline - now;
+                    
+                    if (timeRemaining <= 0 && usaha.supplier.lateBy) {
+                        deadlineText5.textContent = formatTimeLate(usaha.supplier.lateBy);
+                        deadlineCompact5.classList.add('late');
+                    }
+                }
+            } else {
+                statusBadge5.className = 'status-badge status-locked';
+                statusBadge5.textContent = 'Terkunci';
+                deadlineCompact5.style.display = 'flex';
+                summary5.classList.add('locked');
+                if (summaryHeader5) summaryHeader5.classList.add('locked');
+            }
+        }
+        
+        function updateButtons() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Tombol selesaikan modal
+            const completeModalBtn = document.getElementById('completeModalBtn');
+            if (usaha.modal.collected >= usaha.modal.target && !usaha.modal.completed) {
+                completeModalBtn.disabled = false;
+            } else {
+                completeModalBtn.disabled = true;
+            }
+            
+            // Progress 2: Tombol selesaikan tempat
+            const completeTempatBtn = document.getElementById('completeTempatBtn');
+            if (usaha.tempat.completedSteps === usaha.tempat.totalSteps && !usaha.tempat.completed) {
+                completeTempatBtn.disabled = false;
+            } else {
+                completeTempatBtn.disabled = true;
+            }
+            
+            // Progress 3: Tombol selesaikan alat
+            const completeAlatBtn = document.getElementById('completeAlatBtn');
+            if (usaha.alat.purchasedItems === usaha.alat.totalItems && !usaha.alat.completed) {
+                completeAlatBtn.disabled = false;
+            } else {
+                completeAlatBtn.disabled = true;
+            }
+            
+            // Progress 4: Tombol selesaikan kembalian
+            const completeKembalianBtn = document.getElementById('completeKembalianBtn');
+            if (usaha.kembalian.prepared >= usaha.kembalian.target && !usaha.kembalian.completed) {
+                completeKembalianBtn.disabled = false;
+            } else {
+                completeKembalianBtn.disabled = true;
+            }
+            
+            // Progress 5: Tombol selesaikan supplier
+            const completeSupplierBtn = document.getElementById('completeSupplierBtn');
+            if (usaha.supplier.collected >= usaha.supplier.target && !usaha.supplier.completed) {
+                completeSupplierBtn.disabled = false;
+            } else {
+                completeSupplierBtn.disabled = true;
+            }
+            
+            // Tombol selesaikan usaha saat ini
+            const completeUsahaBtn = document.getElementById('completeCurrentUsahaBtn');
+            if (usaha.modal.completed && 
+                usaha.tempat.completed && 
+                usaha.alat.completed && 
+                usaha.kembalian.completed && 
+                usaha.supplier.completed) {
+                completeUsahaBtn.disabled = false;
+            } else {
+                completeUsahaBtn.disabled = true;
+            }
+        }
+        
+        // ==================== MANAJEMEN DEADLINE ====================
+        function startDeadlineTimers() {
+            // Jalankan timer untuk setiap progress yang aktif
+            setInterval(updateAllDeadlineTimers, 1000);
+        }
+        
+        function updateAllDeadlineTimers() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Progress 1: Modal
+            if (usaha.modal.startTime && !usaha.modal.completed) {
+                updateDeadlineTimer('modal', 1);
+            }
+            
+            // Progress 2: Tempat
+            if (usaha.tempat.startTime && !usaha.tempat.completed) {
+                updateDeadlineTimer('tempat', 2);
+            }
+            
+            // Progress 3: Alat
+            if (usaha.alat.startTime && !usaha.alat.completed) {
+                updateDeadlineTimer('alat', 3);
+            }
+            
+            // Progress 4: Kembalian
+            if (usaha.kembalian.startTime && !usaha.kembalian.completed) {
+                updateDeadlineTimer('kembalian', 4);
+            }
+            
+            // Progress 5: Supplier
+            if (usaha.supplier.startTime && !usaha.supplier.completed) {
+                updateDeadlineTimer('supplier', 5);
+            }
+        }
+        
+        function updateDeadlineTimer(progressType, progressNumber) {
+            const currentUsaha = appState.currentUsaha;
+            const progress = appState[`usaha${currentUsaha}`][progressType];
+            const timerElement = document.getElementById(`deadlineTimerDetail${progressNumber}`);
+            const deadlineElement = document.getElementById(`deadlineDetail${progressNumber}`);
+            
+            if (!progress.startTime || !progress.deadline) return;
+            
+            const now = new Date();
+            const timeRemaining = progress.deadline - now;
+            
+            // Update detail timer
+            if (timerElement) {
+                timerElement.textContent = formatTimeRemaining(timeRemaining);
+            }
+            
+            // Update compact deadline text
+            const deadlineText = document.getElementById(`deadlineText${progressNumber}`);
+            if (deadlineText) {
+                if (timeRemaining <= 0) {
+                    // Hitung keterlambatan
+                    if (!progress.lateBy) {
+                        progress.lateBy = Math.abs(timeRemaining);
+                    } else {
+                        progress.lateBy = Math.abs(progress.deadline - now);
+                    }
+                    deadlineText.textContent = formatTimeLate(progress.lateBy);
+                    
+                    // Tambah kelas late untuk styling
+                    const deadlineCompact = document.getElementById(`deadlineCompact${progressNumber}`);
+                    if (deadlineCompact) {
+                        deadlineCompact.classList.add('late');
+                    }
+                    
+                    // Update detail element
+                    if (deadlineElement) {
+                        deadlineElement.classList.add('late');
+                    }
+                } else {
+                    // Format untuk tampilan compact
+                    if (timeRemaining > 24 * 60 * 60 * 1000) {
+                        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                        deadlineText.textContent = `${days} hari`;
+                    } else if (timeRemaining > 60 * 60 * 1000) {
+                        const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                        deadlineText.textContent = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                    } else {
+                        const minutes = Math.floor(timeRemaining / (1000 * 60));
+                        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                        deadlineText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    }
+                    
+                    // Hapus kelas late jika waktu masih ada
+                    const deadlineCompact = document.getElementById(`deadlineCompact${progressNumber}`);
+                    if (deadlineCompact) {
+                        deadlineCompact.classList.remove('late');
+                    }
+                    
+                    if (deadlineElement) {
+                        deadlineElement.classList.remove('late');
+                    }
+                }
+            }
+            
+            // Jika waktu habis, update teks di detail
+            if (deadlineElement && timeRemaining <= 0) {
+                if (timerElement) {
+                    timerElement.textContent = "Waktu Habis!";
+                }
+            }
+            
+            // Simpan perubahan state
+            saveUserData();
+        }
+        
+        function startProgressDeadline(progressType) {
+            const currentUsaha = appState.currentUsaha;
+            const progress = appState[`usaha${currentUsaha}`][progressType];
+            const now = new Date();
+            
+            progress.startTime = now;
+            progress.lateBy = null; // Reset keterlambatan
+            
+            switch(progressType) {
+                case 'modal':
+                    progress.deadline = new Date(now.getTime() + DEADLINES.MODAL);
+                    break;
+                case 'tempat':
+                    progress.deadline = new Date(now.getTime() + DEADLINES.TEMPAT);
+                    break;
+                case 'alat':
+                    progress.deadline = new Date(now.getTime() + DEADLINES.ALAT);
+                    break;
+                case 'kembalian':
+                    progress.deadline = new Date(now.getTime() + DEADLINES.KEMBALIAN);
+                    break;
+                case 'supplier':
+                    progress.deadline = new Date(now.getTime() + DEADLINES.SUPPLIER);
+                    break;
+            }
+            
+            saveUserData();
+        }
+        
+        // ==================== FUNGSI PROGRESS ====================
+        function toggleDetailView(progressNum) {
+            // Cek apakah progres ini terbuka (tidak terkunci)
+            const summaryCard = document.getElementById(`summary${progressNum}`);
+            if (summaryCard.classList.contains('locked')) {
+                return;
+            }
+            
+            const detailElement = document.getElementById(`detail${progressNum}`);
+            
+            // Jika detail yang sama diklik, tutup
+            if (appState.activeDetail === progressNum) {
+                detailElement.classList.remove('active');
+                appState.activeDetail = null;
+                summaryCard.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.08)';
+            } else {
+                // Tutup detail yang sedang aktif
+                if (appState.activeDetail) {
+                    const activeDetailElement = document.getElementById(`detail${appState.activeDetail}`);
+                    const activeSummaryCard = document.getElementById(`summary${appState.activeDetail}`);
+                    if (activeDetailElement) {
+                        activeDetailElement.classList.remove('active');
+                    }
+                    if (activeSummaryCard) {
+                        activeSummaryCard.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.08)';
+                    }
+                }
+                
+                // Buka detail baru
+                detailElement.classList.add('active');
+                appState.activeDetail = progressNum;
+                summaryCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                
+                // Scroll ke detail yang dibuka
+                setTimeout(() => {
+                    detailElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+        
+        function startCurrentUsaha() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            usaha.started = true;
+            usaha.startTime = new Date();
+            
+            // Mulai deadline untuk pengumpulan modal
+            startProgressDeadline('modal');
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert sukses
+            showAlert(`Usaha ${currentUsaha} telah dimulai! Deadline pengumpulan modal: 20 hari.`, 'success');
+            
+            // Buka detail progress pertama
+            setTimeout(() => {
+                toggleDetailView(1);
+            }, 300);
+        }
+        
+        function saveSetoran() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            const amountInput = document.getElementById('setoranAmount');
+            
+            const amount = parseCurrency(amountInput.value);
+            
+            // Validasi
+            if (!amount || amount <= 0) {
+                showAlert('Masukkan jumlah setoran yang valid!', 'danger');
+                amountInput.classList.add('error');
+                return;
+            }
+            
+            // Validasi tidak melebihi target
+            const remaining = usaha.modal.target - usaha.modal.collected;
+            if (amount > remaining) {
+                showAlert(`Setoran melebihi sisa kebutuhan! Sisa yang dibutuhkan: Rp ${formatCurrency(remaining)}`, 'warning');
+                amountInput.classList.add('error');
+                return;
+            }
+            
+            // Hapus error class jika ada
+            amountInput.classList.remove('error');
+            
+            // Tambahkan ke state
+            usaha.modal.collected += amount;
+            
+            // Reset form
+            resetModalForm();
+            document.getElementById('modalInputForm').style.display = 'none';
+            document.getElementById('openModalInputBtn').style.display = 'block';
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert sukses
+            showAlert(`Setoran Rp ${formatCurrency(amount)} berhasil ditambahkan!`, 'success');
+            
+            // Fokus ke tombol buka form lagi
+            document.getElementById('openModalInputBtn').focus();
+        }
+        
+        function completeModal() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.modal.collected >= usaha.modal.target) {
+                // Hitung keterlambatan jika ada
+                const now = new Date();
+                if (usaha.modal.deadline && now > usaha.modal.deadline) {
+                    usaha.modal.lateBy = now - usaha.modal.deadline;
+                }
+                
+                usaha.modal.completed = true;
+                
+                // Mulai deadline untuk persiapan tempat
+                startProgressDeadline('tempat');
+                
+                // Update UI
+                updateUI();
+                saveUserData();
+                
+                // Tampilkan alert sukses dengan info keterlambatan jika ada
+                let alertMsg = 'Pengumpulan modal selesai! Persiapan tempat telah dibuka. Deadline: 7 hari.';
+                if (usaha.modal.lateBy) {
+                    alertMsg += ` (${formatTimeLate(usaha.modal.lateBy)})`;
+                }
+                showAlert(alertMsg, 'success');
+                
+                // Tutup detail dan buka detail berikutnya
+                toggleDetailView(1);
+                setTimeout(() => {
+                    toggleDetailView(2);
+                }, 300);
+            }
+        }
+        
+        function toggleTempatStep(step) {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Hanya boleh di-toggle jika modal sudah selesai
+            if (!usaha.modal.completed) {
+                showAlert('Selesaikan pengumpulan modal terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            const progress = usaha.tempat;
+            
+            // Jika step sudah completed, tidak bisa diubah (locked)
+            if (progress.steps[step]) {
+                return;
+            }
+            
+            // Toggle step
+            progress.steps[step] = true;
+            progress.completedSteps = Object.values(progress.steps).filter(Boolean).length;
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert
+            showAlert(`Langkah "${getStepName(step)}" telah diselesaikan!`, 'success');
+        }
+        
+        function getStepName(stepKey) {
+            const stepNames = {
+                izin: 'Pengurusan Izin Usaha',
+                dp: 'Pembayaran DP Tempat',
+                pelunasan: 'Pelunasan Pembayaran Tempat',
+                siap: 'Persiapan Tempat Siap Jualan'
+            };
+            
+            return stepNames[stepKey] || stepKey;
+        }
+        
+        function completeTempat() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.tempat.completedSteps === usaha.tempat.totalSteps) {
+                // Hitung keterlambatan jika ada
+                const now = new Date();
+                if (usaha.tempat.deadline && now > usaha.tempat.deadline) {
+                    usaha.tempat.lateBy = now - usaha.tempat.deadline;
+                }
+                
+                usaha.tempat.completed = true;
+                
+                // Mulai deadline untuk pembelian alat
+                startProgressDeadline('alat');
+                
+                // Update UI
+                updateUI();
+                saveUserData();
+                
+                // Tampilkan alert sukses
+                let alertMsg = 'Persiapan tempat selesai! Pembelian alat telah dibuka. Deadline: 3 hari.';
+                if (usaha.tempat.lateBy) {
+                    alertMsg += ` (${formatTimeLate(usaha.tempat.lateBy)})`;
+                }
+                showAlert(alertMsg, 'success');
+                
+                // Tutup detail dan buka detail berikutnya
+                toggleDetailView(2);
+                setTimeout(() => {
+                    toggleDetailView(3);
+                }, 300);
+            }
+        }
+        
+        function toggleAlatItem(alat) {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            // Hanya boleh di-toggle jika tempat sudah selesai
+            if (!usaha.tempat.completed) {
+                showAlert('Selesaikan persiapan tempat terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            const progress = usaha.alat;
+            
+            // Jika item sudah dibeli, tidak bisa diubah (locked)
+            if (progress.items[alat]) {
+                return;
+            }
+            
+            // Toggle item
+            progress.items[alat] = true;
+            progress.purchasedItems = Object.values(progress.items).filter(Boolean).length;
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert
+            showAlert(`Alat "${getAlatName(alat)}" telah dibeli!`, 'success');
+        }
+        
+        function getAlatName(alatKey) {
+            const alatNames = {
+                meja: 'Meja',
+                nampan: 'Nampan',
+                tenda: 'Tenda 3x3',
+                plastik: 'Plastik Kemasan',
+                kursi: 'Kursi'
+            };
+            
+            return alatNames[alatKey] || alatKey;
+        }
+        
+        function completeAlat() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.alat.purchasedItems === usaha.alat.totalItems) {
+                // Hitung keterlambatan jika ada
+                const now = new Date();
+                if (usaha.alat.deadline && now > usaha.alat.deadline) {
+                    usaha.alat.lateBy = now - usaha.alat.deadline;
+                }
+                
+                usaha.alat.completed = true;
+                
+                // Mulai deadline untuk modal kembalian
+                startProgressDeadline('kembalian');
+                
+                // Update UI
+                updateUI();
+                saveUserData();
+                
+                // Tampilkan alert sukses
+                let alertMsg = 'Pembelian alat selesai! Pengaturan modal kembalian telah dibuka. Deadline: 30 menit.';
+                if (usaha.alat.lateBy) {
+                    alertMsg += ` (${formatTimeLate(usaha.alat.lateBy)})`;
+                }
+                showAlert(alertMsg, 'success');
+                
+                // Tutup detail dan buka detail berikutnya
+                toggleDetailView(3);
+                setTimeout(() => {
+                    toggleDetailView(4);
+                }, 300);
+            }
+        }
+        
+        function saveKembalian() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            const amountInput = document.getElementById('kembalianAmount');
+            
+            const amount = parseCurrency(amountInput.value);
+            
+            // Validasi
+            if (!amount || amount <= 0) {
+                showAlert('Masukkan jumlah modal kembalian yang valid!', 'danger');
+                amountInput.classList.add('error');
+                return;
+            }
+            
+            // Validasi tidak melebihi target
+            if (amount > usaha.kembalian.target) {
+                showAlert(`Jumlah melebihi target! Target maksimal: Rp ${formatCurrency(usaha.kembalian.target)}`, 'warning');
+                amountInput.classList.add('error');
+                return;
+            }
+            
+            // Hapus error class jika ada
+            amountInput.classList.remove('error');
+            
+            // Set modal kembalian
+            usaha.kembalian.prepared = amount;
+            
+            // Reset form
+            resetKembalianForm();
+            document.getElementById('kembalianInputForm').style.display = 'none';
+            document.getElementById('openKembalianInputBtn').style.display = 'block';
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert sukses
+            showAlert(`Modal kembalian Rp ${formatCurrency(amount)} berhasil disimpan!`, 'success');
+            
+            // Fokus ke tombol buka form lagi
+            document.getElementById('openKembalianInputBtn').focus();
+        }
+        
+        function completeKembalian() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.kembalian.prepared >= usaha.kembalian.target) {
+                // Hitung keterlambatan jika ada
+                const now = new Date();
+                if (usaha.kembalian.deadline && now > usaha.kembalian.deadline) {
+                    usaha.kembalian.lateBy = now - usaha.kembalian.deadline;
+                }
+                
+                usaha.kembalian.completed = true;
+                
+                // Mulai deadline untuk kerja sama supplier
+                startProgressDeadline('supplier');
+                
+                // Update UI
+                updateUI();
+                saveUserData();
+                
+                // Tampilkan alert sukses
+                let alertMsg = 'Pengaturan modal kembalian selesai! Kerja sama supplier telah dibuka. Deadline: 7 hari.';
+                if (usaha.kembalian.lateBy) {
+                    alertMsg += ` (${formatTimeLate(usaha.kembalian.lateBy)})`;
+                }
+                showAlert(alertMsg, 'success');
+                
+                // Tutup detail dan buka detail berikutnya
+                toggleDetailView(4);
+                setTimeout(() => {
+                    toggleDetailView(5);
+                }, 300);
+            }
+        }
+        
+        function saveSupplier() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            const countInput = document.getElementById('supplierCount');
+            
+            const count = parseInt(countInput.value);
+            
+            // Validasi
+            if (!count || count < 0) {
+                showAlert('Masukkan jumlah supplier yang valid!', 'danger');
+                countInput.classList.add('error');
+                return;
+            }
+            
+            // Validasi tidak melebihi target
+            if (count > usaha.supplier.target) {
+                showAlert(`Jumlah melebihi target! Target maksimal: ${usaha.supplier.target} supplier`, 'warning');
+                countInput.classList.add('error');
+                return;
+            }
+            
+            // Hapus error class jika ada
+            countInput.classList.remove('error');
+            
+            // Set jumlah supplier
+            usaha.supplier.collected = count;
+            
+            // Reset form
+            resetSupplierForm();
+            document.getElementById('supplierInputForm').style.display = 'none';
+            document.getElementById('openSupplierInputBtn').style.display = 'block';
+            
+            // Update UI
+            updateUI();
+            saveUserData();
+            
+            // Tampilkan alert sukses
+            showAlert(`Jumlah supplier ${count} berhasil disimpan!`, 'success');
+            
+            // Fokus ke tombol buka form lagi
+            document.getElementById('openSupplierInputBtn').focus();
+        }
+        
+        function completeSupplier() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.supplier.collected >= usaha.supplier.target) {
+                // Hitung keterlambatan jika ada
+                const now = new Date();
+                if (usaha.supplier.deadline && now > usaha.supplier.deadline) {
+                    usaha.supplier.lateBy = now - usaha.supplier.deadline;
+                }
+                
+                usaha.supplier.completed = true;
+                
+                // Update UI
+                updateUI();
+                saveUserData();
+                
+                // Tampilkan alert sukses
+                let alertMsg = 'Kerja sama supplier selesai! Semua progres Usaha telah lengkap.';
+                if (usaha.supplier.lateBy) {
+                    alertMsg += ` (${formatTimeLate(usaha.supplier.lateBy)})`;
+                }
+                showAlert(alertMsg, 'success');
+            }
+        }
+        
+        async function completeCurrentUsaha() {
+            const currentUsaha = appState.currentUsaha;
+            const usaha = appState[`usaha${currentUsaha}`];
+            
+            if (usaha.modal.completed && 
+                usaha.tempat.completed && 
+                usaha.alat.completed && 
+                usaha.kembalian.completed && 
+                usaha.supplier.completed) {
+                
+                usaha.completed = true;
+                
+                // Jika ini bukan usaha terakhir, buka usaha berikutnya
+                if (currentUsaha < 5) {
+                    appState.currentUsaha = currentUsaha + 1;
+                    
+                    // Update UI
+                    updateUI();
+                    await saveUserData();
+                    
+                    // Tampilkan alert sukses
+                    showAlert(`SELAMAT! Usaha ${currentUsaha} telah selesai sepenuhnya. Sekarang Anda dapat memulai Usaha ${appState.currentUsaha}.`, 'success');
+                    
+                    // Tutup detail yang aktif
+                    if (appState.activeDetail) {
+                        toggleDetailView(appState.activeDetail);
+                    }
+                    
+                    // Scroll ke atas
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // Ini adalah usaha terakhir
+                    showAlert('SELAMAT! Anda telah menyelesaikan semua usaha dari 1 sampai 5.', 'success');
+                }
+            }
+        }
+        
+        // ==================== FUNGSI BANTUAN ====================
+        function resetModalForm() {
+            document.getElementById('setoranAmount').value = '';
+            document.getElementById('setoranAmount').classList.remove('error');
+        }
+        
+        function resetKembalianForm() {
+            document.getElementById('kembalianAmount').value = '';
+            document.getElementById('kembalianAmount').classList.remove('error');
+        }
+        
+        function resetSupplierForm() {
+            document.getElementById('supplierCount').value = '';
+            document.getElementById('supplierCount').classList.remove('error');
+        }
+        
+        function showAlert(message, type) {
+            // Hapus alert lama jika ada
+            const oldAlert = document.querySelector('.alert:not(#usahaAlert)');
+            if (oldAlert) {
+                oldAlert.remove();
+            }
+            
+            // Buat alert baru
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+                <div>${message}</div>
+            `;
+            
+            // Sisipkan alert setelah alert usaha
+            const usahaAlert = document.getElementById('usahaAlert');
+            if (usahaAlert && usahaAlert.parentNode) {
+                usahaAlert.parentNode.insertBefore(alert, usahaAlert.nextSibling);
+            }
+            
+            // Hapus alert setelah 5 detik
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
