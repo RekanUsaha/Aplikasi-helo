@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        /* Semua CSS tetap sama seperti sebelumnya */
         :root {
             --primary: #FF6B35;
             --primary-dark: #E55A2B;
@@ -1662,7 +1663,7 @@
                     completed: false,
                     startTime: null,
                     deadline: null,
-                    lateBy: null // waktu keterlambatan dalam milidetik
+                    lateBy: null
                 },
                 tempat: {
                     completedSteps: 0,
@@ -1715,7 +1716,7 @@
                 started: false,
                 startTime: null,
                 modal: {
-                    target: 1600000, // SAMA DENGAN USAHA 1
+                    target: 1600000,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1752,7 +1753,7 @@
                     }
                 },
                 kembalian: {
-                    target: 200000, // SAMA DENGAN USAHA 1
+                    target: 200000,
                     prepared: 0,
                     completed: false,
                     startTime: null,
@@ -1760,7 +1761,7 @@
                     lateBy: null
                 },
                 supplier: {
-                    target: 12, // SAMA DENGAN USAHA 1
+                    target: 12,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1773,7 +1774,7 @@
                 started: false,
                 startTime: null,
                 modal: {
-                    target: 1600000, // SAMA DENGAN USAHA 1
+                    target: 1600000,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1810,7 +1811,7 @@
                     }
                 },
                 kembalian: {
-                    target: 200000, // SAMA DENGAN USAHA 1
+                    target: 200000,
                     prepared: 0,
                     completed: false,
                     startTime: null,
@@ -1818,7 +1819,7 @@
                     lateBy: null
                 },
                 supplier: {
-                    target: 12, // SAMA DENGAN USAHA 1
+                    target: 12,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1831,7 +1832,7 @@
                 started: false,
                 startTime: null,
                 modal: {
-                    target: 1600000, // SAMA DENGAN USAHA 1
+                    target: 1600000,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1868,7 +1869,7 @@
                     }
                 },
                 kembalian: {
-                    target: 200000, // SAMA DENGAN USAHA 1
+                    target: 200000,
                     prepared: 0,
                     completed: false,
                     startTime: null,
@@ -1876,7 +1877,7 @@
                     lateBy: null
                 },
                 supplier: {
-                    target: 12, // SAMA DENGAN USAHA 1
+                    target: 12,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1889,7 +1890,7 @@
                 started: false,
                 startTime: null,
                 modal: {
-                    target: 1600000, // SAMA DENGAN USAHA 1
+                    target: 1600000,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1926,7 +1927,7 @@
                     }
                 },
                 kembalian: {
-                    target: 200000, // SAMA DENGAN USAHA 1
+                    target: 200000,
                     prepared: 0,
                     completed: false,
                     startTime: null,
@@ -1934,7 +1935,7 @@
                     lateBy: null
                 },
                 supplier: {
-                    target: 12, // SAMA DENGAN USAHA 1
+                    target: 12,
                     collected: 0,
                     completed: false,
                     startTime: null,
@@ -1943,7 +1944,7 @@
                 },
                 completed: false
             },
-            activeDetail: null // Menyimpan detail yang sedang aktif
+            activeDetail: null
         };
         
         // ==================== FUNGSI AUTHENTIKASI ====================
@@ -1952,12 +1953,10 @@
         // Cek status login saat halaman dimuat
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // User sudah login
                 currentUser = user;
                 showApp();
                 await loadUserData();
             } else {
-                // User belum login
                 showLogin();
             }
         });
@@ -1996,9 +1995,12 @@
                     lastUpdated: new Date(),
                     email: currentUser.email
                 }, { merge: true });
+                console.log('Data berhasil disimpan ke Firebase');
+                return true;
             } catch (error) {
                 console.error('Error saving data:', error);
                 showAlert('Gagal menyimpan data ke server', 'danger');
+                return false;
             }
         }
         
@@ -2049,13 +2051,8 @@
         
         // ==================== INISIALISASI APLIKASI ====================
         document.addEventListener('DOMContentLoaded', function() {
-            // Setup event listeners untuk login
             setupLoginListeners();
-            
-            // Setup event listeners untuk aplikasi utama
             setupAppListeners();
-            
-            // Update waktu real-time
             updateRealTime();
             setInterval(updateRealTime, 1000);
         });
@@ -2075,7 +2072,6 @@
                 const email = emailInput.value.trim();
                 const password = passwordInput.value;
                 
-                // Validasi sederhana
                 let isValid = true;
                 
                 if (!email) {
@@ -2111,12 +2107,10 @@
             // 3. Event listener untuk membuka detail progres
             document.querySelectorAll('.summary-header').forEach(header => {
                 header.addEventListener('click', function(e) {
-                    // Cegah event jika header terkunci
                     if (this.classList.contains('locked')) {
                         return;
                     }
                     
-                    // Cegah event jika mengklik pada elemen yang bukan header
                     if (e.target.closest('button') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
                         return;
                     }
@@ -2142,34 +2136,24 @@
             document.getElementById('saveSetoranBtn').addEventListener('click', saveSetoran);
             document.getElementById('completeModalBtn').addEventListener('click', completeModal);
             
-            // 5. Progress 2: Persiapan Tempat
-            document.querySelectorAll('.checklist-checkbox[data-step]').forEach(checkbox => {
-                checkbox.addEventListener('click', function(e) {
-                    // Cegah event jika sudah locked
-                    if (this.classList.contains('locked')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    
-                    const step = this.getAttribute('data-step');
+            // 5. Progress 2: Persiapan Tempat - Event Delegation
+            document.getElementById('detail2').addEventListener('click', function(e) {
+                const checkbox = e.target.closest('.checklist-checkbox[data-step]');
+                if (checkbox && !checkbox.classList.contains('locked')) {
+                    const step = checkbox.getAttribute('data-step');
                     toggleTempatStep(step);
-                });
+                }
             });
             
             document.getElementById('completeTempatBtn').addEventListener('click', completeTempat);
             
-            // 6. Progress 3: Pembelian Alat
-            document.querySelectorAll('.checklist-checkbox[data-alat]').forEach(checkbox => {
-                checkbox.addEventListener('click', function(e) {
-                    // Cegah event jika sudah locked
-                    if (this.classList.contains('locked')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    
-                    const alat = this.getAttribute('data-alat');
+            // 6. Progress 3: Pembelian Alat - Event Delegation
+            document.getElementById('detail3').addEventListener('click', function(e) {
+                const checkbox = e.target.closest('.checklist-checkbox[data-alat]');
+                if (checkbox && !checkbox.classList.contains('locked')) {
+                    const alat = checkbox.getAttribute('data-alat');
                     toggleAlatItem(alat);
-                });
+                }
             });
             
             document.getElementById('completeAlatBtn').addEventListener('click', completeAlat);
@@ -2269,12 +2253,10 @@
             const timeElement = document.getElementById('currentTime');
             const dateElement = document.getElementById('currentDate');
             
-            // Format waktu
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
             
-            // Format tanggal
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 
                            'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -2330,7 +2312,6 @@
         
         function parseCurrency(value) {
             if (!value) return 0;
-            // Hapus semua karakter selain angka
             const numericString = value.replace(/[^0-9]/g, '');
             return parseInt(numericString) || 0;
         }
@@ -2342,17 +2323,14 @@
         }
         
         function setupInputFormatting() {
-            // Format input mata uang
             const currencyInputs = document.querySelectorAll('input[type="text"][id$="Amount"]');
             currencyInputs.forEach(input => {
                 input.addEventListener('input', function(e) {
                     const cursorPosition = this.selectionStart;
                     const originalLength = this.value.length;
                     
-                    // Format nilai
                     this.value = formatNumberInput(this.value);
                     
-                    // Atur posisi kursor
                     const newLength = this.value.length;
                     const lengthDiff = newLength - originalLength;
                     this.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
@@ -2366,7 +2344,7 @@
             });
         }
         
-        // ==================== UPDATE UI ====================
+        // ==================== FUNGSI UTAMA UPDATE UI ====================
         function updateUI() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
@@ -2409,19 +2387,16 @@
         }
         
         function updateRoadmap() {
-            // Update semua step roadmap
             for (let i = 1; i <= 5; i++) {
                 const stepElement = document.getElementById(`step${i}`);
                 const statusElement = document.querySelector(`#step${i} + .step-label + .step-status`);
                 const usaha = appState[`usaha${i}`];
                 
                 if (i < appState.currentUsaha) {
-                    // Usaha sebelumnya yang sudah selesai
                     stepElement.className = 'step-indicator completed';
                     statusElement.className = 'step-status status-completed';
                     statusElement.textContent = 'Selesai';
                 } else if (i === appState.currentUsaha) {
-                    // Usaha saat ini
                     if (appState[`usaha${i}`].completed) {
                         stepElement.className = 'step-indicator completed';
                         statusElement.className = 'step-status status-completed';
@@ -2436,12 +2411,10 @@
                         statusElement.textContent = 'Terkunci';
                     }
                 } else if (i === appState.currentUsaha + 1 && appState[`usaha${appState.currentUsaha}`].completed) {
-                    // Usaha berikutnya yang bisa dibuka
                     stepElement.className = 'step-indicator active';
                     statusElement.className = 'step-status status-active';
                     statusElement.textContent = 'Terkunci';
                 } else {
-                    // Usaha yang masih terkunci
                     stepElement.className = 'step-indicator locked';
                     statusElement.className = 'step-status status-locked';
                     statusElement.textContent = 'Terkunci';
@@ -2459,7 +2432,6 @@
             document.getElementById('percentModalCompact1').textContent = `${modalPercent.toFixed(1)}%`;
             document.getElementById('targetModalCompact1').textContent = `Rp ${formatCurrency(usaha.modal.target)}`;
             
-            // Update warna progress bar jika selesai
             if (usaha.modal.completed) {
                 document.getElementById('progressFillCompact1').classList.add('completed');
                 document.getElementById('percentModalCompact1').classList.add('completed');
@@ -2578,32 +2550,36 @@
                 const steps = usaha.tempat.steps;
                 Object.keys(steps).forEach(stepKey => {
                     const element = document.querySelector(`.checklist-checkbox[data-step="${stepKey}"]`);
-                    const parent = element.closest('.checklist-item');
+                    const parent = element ? element.closest('.checklist-item') : null;
                     
-                    if (steps[stepKey]) {
-                        element.classList.add('checked');
-                        element.classList.add('locked'); // Lock setelah selesai
-                        parent.classList.add('completed');
-                    } else {
-                        element.classList.remove('checked');
-                        element.classList.remove('locked');
-                        parent.classList.remove('completed');
+                    if (element && parent) {
+                        if (steps[stepKey]) {
+                            element.classList.add('checked');
+                            element.classList.add('locked');
+                            parent.classList.add('completed');
+                        } else {
+                            element.classList.remove('checked');
+                            element.classList.remove('locked');
+                            parent.classList.remove('completed');
+                        }
                     }
                 });
             } else if (type === 'alat') {
                 const items = usaha.alat.items;
                 Object.keys(items).forEach(itemKey => {
                     const element = document.querySelector(`.checklist-checkbox[data-alat="${itemKey}"]`);
-                    const parent = element.closest('.checklist-item');
+                    const parent = element ? element.closest('.checklist-item') : null;
                     
-                    if (items[itemKey]) {
-                        element.classList.add('checked');
-                        element.classList.add('locked'); // Lock setelah selesai
-                        parent.classList.add('completed');
-                    } else {
-                        element.classList.remove('checked');
-                        element.classList.remove('locked');
-                        parent.classList.remove('completed');
+                    if (element && parent) {
+                        if (items[itemKey]) {
+                            element.classList.add('checked');
+                            element.classList.add('locked');
+                            parent.classList.add('completed');
+                        } else {
+                            element.classList.remove('checked');
+                            element.classList.remove('locked');
+                            parent.classList.remove('completed');
+                        }
                     }
                 });
             }
@@ -2704,7 +2680,6 @@
                 deadlineCompact1.style.display = 'flex';
                 if (summaryHeader1) summaryHeader1.classList.remove('locked');
                 
-                // Update deadline text
                 if (usaha.modal.deadline) {
                     const now = new Date();
                     const timeRemaining = usaha.modal.deadline - now;
@@ -2741,7 +2716,6 @@
                 summary2.classList.remove('locked');
                 if (summaryHeader2) summaryHeader2.classList.remove('locked');
                 
-                // Update deadline text
                 if (usaha.tempat.deadline) {
                     const now = new Date();
                     const timeRemaining = usaha.tempat.deadline - now;
@@ -2779,7 +2753,6 @@
                 summary3.classList.remove('locked');
                 if (summaryHeader3) summaryHeader3.classList.remove('locked');
                 
-                // Update deadline text
                 if (usaha.alat.deadline) {
                     const now = new Date();
                     const timeRemaining = usaha.alat.deadline - now;
@@ -2817,7 +2790,6 @@
                 summary4.classList.remove('locked');
                 if (summaryHeader4) summaryHeader4.classList.remove('locked');
                 
-                // Update deadline text
                 if (usaha.kembalian.deadline) {
                     const now = new Date();
                     const timeRemaining = usaha.kembalian.deadline - now;
@@ -2855,7 +2827,6 @@
                 summary5.classList.remove('locked');
                 if (summaryHeader5) summaryHeader5.classList.remove('locked');
                 
-                // Update deadline text
                 if (usaha.supplier.deadline) {
                     const now = new Date();
                     const timeRemaining = usaha.supplier.deadline - now;
@@ -2933,7 +2904,6 @@
         
         // ==================== MANAJEMEN DEADLINE ====================
         function startDeadlineTimers() {
-            // Jalankan timer untuk setiap progress yang aktif
             setInterval(updateAllDeadlineTimers, 1000);
         }
         
@@ -2941,27 +2911,22 @@
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
-            // Progress 1: Modal
             if (usaha.modal.startTime && !usaha.modal.completed) {
                 updateDeadlineTimer('modal', 1);
             }
             
-            // Progress 2: Tempat
             if (usaha.tempat.startTime && !usaha.tempat.completed) {
                 updateDeadlineTimer('tempat', 2);
             }
             
-            // Progress 3: Alat
             if (usaha.alat.startTime && !usaha.alat.completed) {
                 updateDeadlineTimer('alat', 3);
             }
             
-            // Progress 4: Kembalian
             if (usaha.kembalian.startTime && !usaha.kembalian.completed) {
                 updateDeadlineTimer('kembalian', 4);
             }
             
-            // Progress 5: Supplier
             if (usaha.supplier.startTime && !usaha.supplier.completed) {
                 updateDeadlineTimer('supplier', 5);
             }
@@ -2987,7 +2952,6 @@
             const deadlineText = document.getElementById(`deadlineText${progressNumber}`);
             if (deadlineText) {
                 if (timeRemaining <= 0) {
-                    // Hitung keterlambatan
                     if (!progress.lateBy) {
                         progress.lateBy = Math.abs(timeRemaining);
                     } else {
@@ -2995,18 +2959,15 @@
                     }
                     deadlineText.textContent = formatTimeLate(progress.lateBy);
                     
-                    // Tambah kelas late untuk styling
                     const deadlineCompact = document.getElementById(`deadlineCompact${progressNumber}`);
                     if (deadlineCompact) {
                         deadlineCompact.classList.add('late');
                     }
                     
-                    // Update detail element
                     if (deadlineElement) {
                         deadlineElement.classList.add('late');
                     }
                 } else {
-                    // Format untuk tampilan compact
                     if (timeRemaining > 24 * 60 * 60 * 1000) {
                         const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
                         deadlineText.textContent = `${days} hari`;
@@ -3020,7 +2981,6 @@
                         deadlineText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                     }
                     
-                    // Hapus kelas late jika waktu masih ada
                     const deadlineCompact = document.getElementById(`deadlineCompact${progressNumber}`);
                     if (deadlineCompact) {
                         deadlineCompact.classList.remove('late');
@@ -3032,7 +2992,6 @@
                 }
             }
             
-            // Jika waktu habis, update teks di detail
             if (deadlineElement && timeRemaining <= 0) {
                 if (timerElement) {
                     timerElement.textContent = "Waktu Habis!";
@@ -3049,7 +3008,7 @@
             const now = new Date();
             
             progress.startTime = now;
-            progress.lateBy = null; // Reset keterlambatan
+            progress.lateBy = null;
             
             switch(progressType) {
                 case 'modal':
@@ -3074,7 +3033,6 @@
         
         // ==================== FUNGSI PROGRESS ====================
         function toggleDetailView(progressNum) {
-            // Cek apakah progres ini terbuka (tidak terkunci)
             const summaryCard = document.getElementById(`summary${progressNum}`);
             if (summaryCard.classList.contains('locked')) {
                 return;
@@ -3082,13 +3040,11 @@
             
             const detailElement = document.getElementById(`detail${progressNum}`);
             
-            // Jika detail yang sama diklik, tutup
             if (appState.activeDetail === progressNum) {
                 detailElement.classList.remove('active');
                 appState.activeDetail = null;
                 summaryCard.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.08)';
             } else {
-                // Tutup detail yang sedang aktif
                 if (appState.activeDetail) {
                     const activeDetailElement = document.getElementById(`detail${appState.activeDetail}`);
                     const activeSummaryCard = document.getElementById(`summary${appState.activeDetail}`);
@@ -3100,56 +3056,48 @@
                     }
                 }
                 
-                // Buka detail baru
                 detailElement.classList.add('active');
                 appState.activeDetail = progressNum;
                 summaryCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
                 
-                // Scroll ke detail yang dibuka
                 setTimeout(() => {
                     detailElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
             }
         }
         
-        function startCurrentUsaha() {
+        async function startCurrentUsaha() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             usaha.started = true;
             usaha.startTime = new Date();
             
-            // Mulai deadline untuk pengumpulan modal
             startProgressDeadline('modal');
             
-            // Update UI
             updateUI();
-            saveUserData();
+            await saveUserData();
             
-            // Tampilkan alert sukses
             showAlert(`Usaha ${currentUsaha} telah dimulai! Deadline pengumpulan modal: 20 hari.`, 'success');
             
-            // Buka detail progress pertama
             setTimeout(() => {
                 toggleDetailView(1);
             }, 300);
         }
         
-        function saveSetoran() {
+        async function saveSetoran() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             const amountInput = document.getElementById('setoranAmount');
             
             const amount = parseCurrency(amountInput.value);
             
-            // Validasi
             if (!amount || amount <= 0) {
                 showAlert('Masukkan jumlah setoran yang valid!', 'danger');
                 amountInput.classList.add('error');
                 return;
             }
             
-            // Validasi tidak melebihi target
             const remaining = usaha.modal.target - usaha.modal.collected;
             if (amount > remaining) {
                 showAlert(`Setoran melebihi sisa kebutuhan! Sisa yang dibutuhkan: Rp ${formatCurrency(remaining)}`, 'warning');
@@ -3157,34 +3105,29 @@
                 return;
             }
             
-            // Hapus error class jika ada
             amountInput.classList.remove('error');
             
-            // Tambahkan ke state
             usaha.modal.collected += amount;
             
-            // Reset form
             resetModalForm();
             document.getElementById('modalInputForm').style.display = 'none';
             document.getElementById('openModalInputBtn').style.display = 'block';
             
-            // Update UI
+            // UPDATE UI DULU, BARU SIMPAN KE FIREBASE
             updateUI();
-            saveUserData();
+            const saved = await saveUserData();
             
-            // Tampilkan alert sukses
-            showAlert(`Setoran Rp ${formatCurrency(amount)} berhasil ditambahkan!`, 'success');
-            
-            // Fokus ke tombol buka form lagi
-            document.getElementById('openModalInputBtn').focus();
+            if (saved) {
+                showAlert(`Setoran Rp ${formatCurrency(amount)} berhasil ditambahkan!`, 'success');
+                document.getElementById('openModalInputBtn').focus();
+            }
         }
         
-        function completeModal() {
+        async function completeModal() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             if (usaha.modal.collected >= usaha.modal.target) {
-                // Hitung keterlambatan jika ada
                 const now = new Date();
                 if (usaha.modal.deadline && now > usaha.modal.deadline) {
                     usaha.modal.lateBy = now - usaha.modal.deadline;
@@ -3192,33 +3135,30 @@
                 
                 usaha.modal.completed = true;
                 
-                // Mulai deadline untuk persiapan tempat
                 startProgressDeadline('tempat');
                 
-                // Update UI
                 updateUI();
-                saveUserData();
+                const saved = await saveUserData();
                 
-                // Tampilkan alert sukses dengan info keterlambatan jika ada
-                let alertMsg = 'Pengumpulan modal selesai! Persiapan tempat telah dibuka. Deadline: 7 hari.';
-                if (usaha.modal.lateBy) {
-                    alertMsg += ` (${formatTimeLate(usaha.modal.lateBy)})`;
+                if (saved) {
+                    let alertMsg = 'Pengumpulan modal selesai! Persiapan tempat telah dibuka. Deadline: 7 hari.';
+                    if (usaha.modal.lateBy) {
+                        alertMsg += ` (${formatTimeLate(usaha.modal.lateBy)})`;
+                    }
+                    showAlert(alertMsg, 'success');
+                    
+                    toggleDetailView(1);
+                    setTimeout(() => {
+                        toggleDetailView(2);
+                    }, 300);
                 }
-                showAlert(alertMsg, 'success');
-                
-                // Tutup detail dan buka detail berikutnya
-                toggleDetailView(1);
-                setTimeout(() => {
-                    toggleDetailView(2);
-                }, 300);
             }
         }
         
-        function toggleTempatStep(step) {
+        async function toggleTempatStep(step) {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
-            // Hanya boleh di-toggle jika modal sudah selesai
             if (!usaha.modal.completed) {
                 showAlert('Selesaikan pengumpulan modal terlebih dahulu!', 'warning');
                 return;
@@ -3226,21 +3166,19 @@
             
             const progress = usaha.tempat;
             
-            // Jika step sudah completed, tidak bisa diubah (locked)
             if (progress.steps[step]) {
                 return;
             }
             
-            // Toggle step
             progress.steps[step] = true;
             progress.completedSteps = Object.values(progress.steps).filter(Boolean).length;
             
-            // Update UI
             updateUI();
-            saveUserData();
+            const saved = await saveUserData();
             
-            // Tampilkan alert
-            showAlert(`Langkah "${getStepName(step)}" telah diselesaikan!`, 'success');
+            if (saved) {
+                showAlert(`Langkah "${getStepName(step)}" telah diselesaikan!`, 'success');
+            }
         }
         
         function getStepName(stepKey) {
@@ -3254,12 +3192,11 @@
             return stepNames[stepKey] || stepKey;
         }
         
-        function completeTempat() {
+        async function completeTempat() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             if (usaha.tempat.completedSteps === usaha.tempat.totalSteps) {
-                // Hitung keterlambatan jika ada
                 const now = new Date();
                 if (usaha.tempat.deadline && now > usaha.tempat.deadline) {
                     usaha.tempat.lateBy = now - usaha.tempat.deadline;
@@ -3267,33 +3204,30 @@
                 
                 usaha.tempat.completed = true;
                 
-                // Mulai deadline untuk pembelian alat
                 startProgressDeadline('alat');
                 
-                // Update UI
                 updateUI();
-                saveUserData();
+                const saved = await saveUserData();
                 
-                // Tampilkan alert sukses
-                let alertMsg = 'Persiapan tempat selesai! Pembelian alat telah dibuka. Deadline: 3 hari.';
-                if (usaha.tempat.lateBy) {
-                    alertMsg += ` (${formatTimeLate(usaha.tempat.lateBy)})`;
+                if (saved) {
+                    let alertMsg = 'Persiapan tempat selesai! Pembelian alat telah dibuka. Deadline: 3 hari.';
+                    if (usaha.tempat.lateBy) {
+                        alertMsg += ` (${formatTimeLate(usaha.tempat.lateBy)})`;
+                    }
+                    showAlert(alertMsg, 'success');
+                    
+                    toggleDetailView(2);
+                    setTimeout(() => {
+                        toggleDetailView(3);
+                    }, 300);
                 }
-                showAlert(alertMsg, 'success');
-                
-                // Tutup detail dan buka detail berikutnya
-                toggleDetailView(2);
-                setTimeout(() => {
-                    toggleDetailView(3);
-                }, 300);
             }
         }
         
-        function toggleAlatItem(alat) {
+        async function toggleAlatItem(alat) {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
-            // Hanya boleh di-toggle jika tempat sudah selesai
             if (!usaha.tempat.completed) {
                 showAlert('Selesaikan persiapan tempat terlebih dahulu!', 'warning');
                 return;
@@ -3301,21 +3235,19 @@
             
             const progress = usaha.alat;
             
-            // Jika item sudah dibeli, tidak bisa diubah (locked)
             if (progress.items[alat]) {
                 return;
             }
             
-            // Toggle item
             progress.items[alat] = true;
             progress.purchasedItems = Object.values(progress.items).filter(Boolean).length;
             
-            // Update UI
             updateUI();
-            saveUserData();
+            const saved = await saveUserData();
             
-            // Tampilkan alert
-            showAlert(`Alat "${getAlatName(alat)}" telah dibeli!`, 'success');
+            if (saved) {
+                showAlert(`Alat "${getAlatName(alat)}" telah dibeli!`, 'success');
+            }
         }
         
         function getAlatName(alatKey) {
@@ -3330,12 +3262,11 @@
             return alatNames[alatKey] || alatKey;
         }
         
-        function completeAlat() {
+        async function completeAlat() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             if (usaha.alat.purchasedItems === usaha.alat.totalItems) {
-                // Hitung keterlambatan jika ada
                 const now = new Date();
                 if (usaha.alat.deadline && now > usaha.alat.deadline) {
                     usaha.alat.lateBy = now - usaha.alat.deadline;
@@ -3343,77 +3274,67 @@
                 
                 usaha.alat.completed = true;
                 
-                // Mulai deadline untuk modal kembalian
                 startProgressDeadline('kembalian');
                 
-                // Update UI
                 updateUI();
-                saveUserData();
+                const saved = await saveUserData();
                 
-                // Tampilkan alert sukses
-                let alertMsg = 'Pembelian alat selesai! Pengaturan modal kembalian telah dibuka. Deadline: 30 menit.';
-                if (usaha.alat.lateBy) {
-                    alertMsg += ` (${formatTimeLate(usaha.alat.lateBy)})`;
+                if (saved) {
+                    let alertMsg = 'Pembelian alat selesai! Pengaturan modal kembalian telah dibuka. Deadline: 30 menit.';
+                    if (usaha.alat.lateBy) {
+                        alertMsg += ` (${formatTimeLate(usaha.alat.lateBy)})`;
+                    }
+                    showAlert(alertMsg, 'success');
+                    
+                    toggleDetailView(3);
+                    setTimeout(() => {
+                        toggleDetailView(4);
+                    }, 300);
                 }
-                showAlert(alertMsg, 'success');
-                
-                // Tutup detail dan buka detail berikutnya
-                toggleDetailView(3);
-                setTimeout(() => {
-                    toggleDetailView(4);
-                }, 300);
             }
         }
         
-        function saveKembalian() {
+        async function saveKembalian() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             const amountInput = document.getElementById('kembalianAmount');
             
             const amount = parseCurrency(amountInput.value);
             
-            // Validasi
             if (!amount || amount <= 0) {
                 showAlert('Masukkan jumlah modal kembalian yang valid!', 'danger');
                 amountInput.classList.add('error');
                 return;
             }
             
-            // Validasi tidak melebihi target
             if (amount > usaha.kembalian.target) {
                 showAlert(`Jumlah melebihi target! Target maksimal: Rp ${formatCurrency(usaha.kembalian.target)}`, 'warning');
                 amountInput.classList.add('error');
                 return;
             }
             
-            // Hapus error class jika ada
             amountInput.classList.remove('error');
             
-            // Set modal kembalian
             usaha.kembalian.prepared = amount;
             
-            // Reset form
             resetKembalianForm();
             document.getElementById('kembalianInputForm').style.display = 'none';
             document.getElementById('openKembalianInputBtn').style.display = 'block';
             
-            // Update UI
             updateUI();
-            saveUserData();
+            const saved = await saveUserData();
             
-            // Tampilkan alert sukses
-            showAlert(`Modal kembalian Rp ${formatCurrency(amount)} berhasil disimpan!`, 'success');
-            
-            // Fokus ke tombol buka form lagi
-            document.getElementById('openKembalianInputBtn').focus();
+            if (saved) {
+                showAlert(`Modal kembalian Rp ${formatCurrency(amount)} berhasil disimpan!`, 'success');
+                document.getElementById('openKembalianInputBtn').focus();
+            }
         }
         
-        function completeKembalian() {
+        async function completeKembalian() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             if (usaha.kembalian.prepared >= usaha.kembalian.target) {
-                // Hitung keterlambatan jika ada
                 const now = new Date();
                 if (usaha.kembalian.deadline && now > usaha.kembalian.deadline) {
                     usaha.kembalian.lateBy = now - usaha.kembalian.deadline;
@@ -3421,77 +3342,67 @@
                 
                 usaha.kembalian.completed = true;
                 
-                // Mulai deadline untuk kerja sama supplier
                 startProgressDeadline('supplier');
                 
-                // Update UI
                 updateUI();
-                saveUserData();
+                const saved = await saveUserData();
                 
-                // Tampilkan alert sukses
-                let alertMsg = 'Pengaturan modal kembalian selesai! Kerja sama supplier telah dibuka. Deadline: 7 hari.';
-                if (usaha.kembalian.lateBy) {
-                    alertMsg += ` (${formatTimeLate(usaha.kembalian.lateBy)})`;
+                if (saved) {
+                    let alertMsg = 'Pengaturan modal kembalian selesai! Kerja sama supplier telah dibuka. Deadline: 7 hari.';
+                    if (usaha.kembalian.lateBy) {
+                        alertMsg += ` (${formatTimeLate(usaha.kembalian.lateBy)})`;
+                    }
+                    showAlert(alertMsg, 'success');
+                    
+                    toggleDetailView(4);
+                    setTimeout(() => {
+                        toggleDetailView(5);
+                    }, 300);
                 }
-                showAlert(alertMsg, 'success');
-                
-                // Tutup detail dan buka detail berikutnya
-                toggleDetailView(4);
-                setTimeout(() => {
-                    toggleDetailView(5);
-                }, 300);
             }
         }
         
-        function saveSupplier() {
+        async function saveSupplier() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             const countInput = document.getElementById('supplierCount');
             
             const count = parseInt(countInput.value);
             
-            // Validasi
             if (!count || count < 0) {
                 showAlert('Masukkan jumlah supplier yang valid!', 'danger');
                 countInput.classList.add('error');
                 return;
             }
             
-            // Validasi tidak melebihi target
             if (count > usaha.supplier.target) {
                 showAlert(`Jumlah melebihi target! Target maksimal: ${usaha.supplier.target} supplier`, 'warning');
                 countInput.classList.add('error');
                 return;
             }
             
-            // Hapus error class jika ada
             countInput.classList.remove('error');
             
-            // Set jumlah supplier
             usaha.supplier.collected = count;
             
-            // Reset form
             resetSupplierForm();
             document.getElementById('supplierInputForm').style.display = 'none';
             document.getElementById('openSupplierInputBtn').style.display = 'block';
             
-            // Update UI
             updateUI();
-            saveUserData();
+            const saved = await saveUserData();
             
-            // Tampilkan alert sukses
-            showAlert(`Jumlah supplier ${count} berhasil disimpan!`, 'success');
-            
-            // Fokus ke tombol buka form lagi
-            document.getElementById('openSupplierInputBtn').focus();
+            if (saved) {
+                showAlert(`Jumlah supplier ${count} berhasil disimpan!`, 'success');
+                document.getElementById('openSupplierInputBtn').focus();
+            }
         }
         
-        function completeSupplier() {
+        async function completeSupplier() {
             const currentUsaha = appState.currentUsaha;
             const usaha = appState[`usaha${currentUsaha}`];
             
             if (usaha.supplier.collected >= usaha.supplier.target) {
-                // Hitung keterlambatan jika ada
                 const now = new Date();
                 if (usaha.supplier.deadline && now > usaha.supplier.deadline) {
                     usaha.supplier.lateBy = now - usaha.supplier.deadline;
@@ -3499,16 +3410,16 @@
                 
                 usaha.supplier.completed = true;
                 
-                // Update UI
                 updateUI();
-                saveUserData();
+                const saved = await saveUserData();
                 
-                // Tampilkan alert sukses
-                let alertMsg = 'Kerja sama supplier selesai! Semua progres Usaha telah lengkap.';
-                if (usaha.supplier.lateBy) {
-                    alertMsg += ` (${formatTimeLate(usaha.supplier.lateBy)})`;
+                if (saved) {
+                    let alertMsg = 'Kerja sama supplier selesai! Semua progres Usaha telah lengkap.';
+                    if (usaha.supplier.lateBy) {
+                        alertMsg += ` (${formatTimeLate(usaha.supplier.lateBy)})`;
+                    }
+                    showAlert(alertMsg, 'success');
                 }
-                showAlert(alertMsg, 'success');
             }
         }
         
@@ -3524,26 +3435,22 @@
                 
                 usaha.completed = true;
                 
-                // Jika ini bukan usaha terakhir, buka usaha berikutnya
                 if (currentUsaha < 5) {
                     appState.currentUsaha = currentUsaha + 1;
                     
-                    // Update UI
                     updateUI();
-                    await saveUserData();
+                    const saved = await saveUserData();
                     
-                    // Tampilkan alert sukses
-                    showAlert(`SELAMAT! Usaha ${currentUsaha} telah selesai sepenuhnya. Sekarang Anda dapat memulai Usaha ${appState.currentUsaha}.`, 'success');
-                    
-                    // Tutup detail yang aktif
-                    if (appState.activeDetail) {
-                        toggleDetailView(appState.activeDetail);
+                    if (saved) {
+                        showAlert(`SELAMAT! Usaha ${currentUsaha} telah selesai sepenuhnya. Sekarang Anda dapat memulai Usaha ${appState.currentUsaha}.`, 'success');
+                        
+                        if (appState.activeDetail) {
+                            toggleDetailView(appState.activeDetail);
+                        }
+                        
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
-                    
-                    // Scroll ke atas
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    // Ini adalah usaha terakhir
                     showAlert('SELAMAT! Anda telah menyelesaikan semua usaha dari 1 sampai 5.', 'success');
                 }
             }
@@ -3566,13 +3473,11 @@
         }
         
         function showAlert(message, type) {
-            // Hapus alert lama jika ada
             const oldAlert = document.querySelector('.alert:not(#usahaAlert)');
             if (oldAlert) {
                 oldAlert.remove();
             }
             
-            // Buat alert baru
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.innerHTML = `
@@ -3580,13 +3485,11 @@
                 <div>${message}</div>
             `;
             
-            // Sisipkan alert setelah alert usaha
             const usahaAlert = document.getElementById('usahaAlert');
             if (usahaAlert && usahaAlert.parentNode) {
                 usahaAlert.parentNode.insertBefore(alert, usahaAlert.nextSibling);
             }
             
-            // Hapus alert setelah 5 detik
             setTimeout(() => {
                 if (alert.parentNode) {
                     alert.remove();
